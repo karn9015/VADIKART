@@ -686,8 +686,6 @@ async function loadDashboard() {
     renderDashboard(_dashCache.data);
     return;
   }
-  const from = document.getElementById('dashFrom').value;
-  const to   = document.getElementById('dashTo').value;
   let url = API + '/api/stats';
   const params = [];
   if (from) params.push('from='+from);
@@ -745,7 +743,6 @@ function renderDashboard(d) {
     } else {
       tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted)">No orders yet</td></tr>';
     }
-  } catch(e) { toast('Failed to load dashboard', 'error'); }
 }
 
 // ── ORDERS ────────────────────────────────────────────────────────────────
