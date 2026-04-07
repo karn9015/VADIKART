@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Vaidyakart — Sugar Control Powder | Ayurvedic Blood Sugar Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Hind:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --green:#1a7a4a;
+  --green2:#22a05a;
+  --gold:#d4a017;
+  --dark:#0f1e15;
+  --light:#f5f0e8;
+  --white:#ffffff;
+  --red:#e03030;
+  --orange:#e07020;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Hind',sans-serif;background:var(--light);color:var(--dark)}
+h1,h2,h3,h4{font-family:'Baloo 2',cursive}
+
+/* ANNOUNCEMENT BAR */
+.ann-bar{background:var(--green);color:#fff;text-align:center;padding:10px;font-size:14px;font-weight:600;letter-spacing:.3px}
+.ann-bar span{margin:0 12px}
+
+/* HEADER */
+header{background:var(--dark);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.4)}
+.logo{font-family:'Baloo 2',cursive;font-size:22px;color:var(--gold);font-weight:800;letter-spacing:.5px}
+.logo span{color:#fff}
+.header-btn{background:var(--green2);color:#fff;border:none;padding:9px 20px;border-radius:6px;font-weight:700;cursor:pointer;font-size:14px}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,var(--dark) 0%,#1a3025 100%);color:#fff;padding:40px 20px 50px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:300px;height:300px;background:radial-gradient(circle,rgba(34,160,90,.25) 0%,transparent 70%);border-radius:50%}
+.hero-badge{display:inline-block;background:var(--gold);color:var(--dark);font-weight:800;padding:5px 16px;border-radius:20px;font-size:13px;margin-bottom:14px;font-family:'Baloo 2',cursive}
+.hero h1{font-size:clamp(26px,6vw,46px);line-height:1.2;margin-bottom:10px;font-weight:800}
+.hero h1 span{color:var(--gold)}
+.hero-tagline{font-size:16px;opacity:.85;margin-bottom:6px;font-family:'Hind',sans-serif}
+.hero-tagline-en{font-size:14px;opacity:.65;margin-bottom:24px}
+.price-box{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:24px;flex-wrap:wrap}
+.price-main{font-size:42px;font-weight:800;font-family:'Baloo 2',cursive;color:#fff}
+.price-mrp{font-size:20px;text-decoration:line-through;opacity:.5}
+.price-save{background:var(--red);color:#fff;padding:4px 12px;border-radius:20px;font-size:13px;font-weight:700}
+.hero-img{width:220px;max-width:80%;margin:0 auto 24px;display:block;border-radius:16px;background:rgba(255,255,255,.08);padding:20px}
+.hero-img-placeholder{width:200px;height:200px;background:linear-gradient(135deg,var(--green) 0%,var(--green2) 100%);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:80px}
+.order-btn{background:linear-gradient(135deg,var(--green2),var(--green));color:#fff;border:none;padding:16px 40px;border-radius:10px;font-size:18px;font-weight:800;font-family:'Baloo 2',cursive;cursor:pointer;box-shadow:0 6px 24px rgba(26,122,74,.5);transition:transform .2s;width:100%;max-width:360px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+.order-btn:hover{transform:scale(1.04)}
+.trust-row{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:20px}
+.trust-badge{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);padding:7px 14px;border-radius:20px;font-size:13px;font-weight:600}
+.trust-badge span{font-size:16px}
+
+/* SECTIONS */
+section{padding:50px 20px}
+.section-title{text-align:center;font-size:clamp(22px,5vw,34px);font-weight:800;margin-bottom:8px;color:var(--dark)}
+.section-subtitle{text-align:center;color:#555;margin-bottom:36px;font-size:15px}
+.green-line{width:60px;height:4px;background:var(--green2);border-radius:2px;margin:10px auto 20px}
+
+/* BENEFITS */
+.benefits-bg{background:#fff}
+.benefits-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:20px;max-width:800px;margin:0 auto}
+.benefit-card{background:var(--light);border-radius:14px;padding:24px 16px;text-align:center;border:2px solid transparent;transition:.25s}
+.benefit-card:hover{border-color:var(--green2);transform:translateY(-3px)}
+.benefit-icon{font-size:38px;margin-bottom:12px}
+.benefit-card h4{font-size:14px;font-weight:700;color:var(--dark);font-family:'Baloo 2',cursive}
+
+/* HOW IT WORKS */
+.how-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:24px;max-width:900px;margin:0 auto}
+.how-step{background:#fff;border-radius:16px;padding:30px 24px;text-align:center;flex:1;min-width:220px;max-width:280px;box-shadow:0 4px 20px rgba(0,0,0,.08);position:relative}
+.step-num{width:40px;height:40px;background:var(--green2);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;font-family:'Baloo 2',cursive;margin:0 auto 14px}
+.how-step h3{font-size:16px;margin-bottom:8px;color:var(--dark)}
+.how-step p{font-size:13px;color:#666;line-height:1.6}
+.step-icon{font-size:36px;margin-bottom:12px}
+
+/* INGREDIENTS */
+.ingredients-bg{background:var(--dark);color:#fff}
+.ingredients-bg .section-title{color:#fff}
+.ingredients-bg .section-subtitle{color:rgba(255,255,255,.65)}
+.ingr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:16px;max-width:900px;margin:0 auto}
+.ingr-card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:20px 12px;text-align:center}
+.ingr-icon{font-size:32px;margin-bottom:8px}
+.ingr-card h4{font-size:13px;font-weight:700;color:var(--gold)}
+.ingr-card p{font-size:11px;color:rgba(255,255,255,.55);margin-top:4px}
+
+/* REVIEWS */
+.reviews-bg{background:#fff}
+.reviews-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:20px;max-width:900px;margin:0 auto}
+.review-card{background:var(--light);border-radius:16px;padding:24px;flex:1;min-width:250px;max-width:290px;border-left:4px solid var(--green2)}
+.stars{color:var(--gold);font-size:16px;margin-bottom:10px}
+.review-text{font-size:14px;color:#444;line-height:1.7;margin-bottom:14px;font-style:italic}
+.reviewer{display:flex;align-items:center;gap:10px}
+.reviewer-avatar{width:40px;height:40px;border-radius:50%;background:var(--green2);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;font-family:'Baloo 2',cursive}
+.reviewer-info h4{font-size:14px;font-weight:700}
+.reviewer-info p{font-size:12px;color:#888}
+.verified{color:var(--green2);font-size:11px;font-weight:600;margin-top:2px}
+
+/* FAQ */
+.faq-list{max-width:700px;margin:0 auto}
+.faq-item{background:#fff;border-radius:12px;margin-bottom:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.faq-q{padding:18px 20px;font-weight:700;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:15px;color:var(--dark)}
+.faq-q .arrow{transition:.3s;color:var(--green2);font-size:18px}
+.faq-q.open .arrow{transform:rotate(180deg)}
+.faq-a{max-height:0;overflow:hidden;transition:.3s;padding:0 20px;font-size:14px;color:#555;line-height:1.7}
+.faq-a.open{max-height:200px;padding:0 20px 18px}
+
+/* FOOTER */
+footer{background:var(--dark);color:#fff;padding:40px 20px;text-align:center}
+.footer-logo{font-family:'Baloo 2',cursive;font-size:24px;color:var(--gold);font-weight:800;margin-bottom:12px}
+.footer-badges{display:flex;justify-content:center;flex-wrap:wrap;gap:16px;margin:16px 0}
+.footer-badge{display:flex;align-items:center;gap:6px;font-size:13px;opacity:.8}
+.footer-bottom{margin-top:24px;font-size:12px;opacity:.4}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;backdrop-filter:blur(4px)}
+.modal-overlay.active{display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:#fff;border-radius:20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.modal-header{background:linear-gradient(135deg,var(--dark),#1a3025);color:#fff;padding:20px 24px;border-radius:20px 20px 0 0;display:flex;justify-content:space-between;align-items:center}
+.modal-header h2{font-size:20px;font-family:'Baloo 2',cursive}
+.modal-close{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;opacity:.8}
+.modal-body{padding:24px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--dark)}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 14px;border:2px solid #e0e0e0;border-radius:8px;font-size:15px;font-family:'Hind',sans-serif;outline:none;transition:.2s}
+.form-group input:focus,.form-group select:focus{border-color:var(--green2)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.order-summary{background:var(--light);border-radius:12px;padding:16px;margin-bottom:20px}
+.order-summary h4{font-size:14px;font-weight:700;margin-bottom:10px;color:var(--green)}
+.summary-row{display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px;color:#555}
+.summary-total{display:flex;justify-content:space-between;font-size:18px;font-weight:800;font-family:'Baloo 2',cursive;margin-top:10px;padding-top:10px;border-top:2px dashed #ccc;color:var(--dark)}
+.submit-btn{background:linear-gradient(135deg,var(--green2),var(--green));color:#fff;border:none;width:100%;padding:16px;border-radius:10px;font-size:18px;font-weight:800;font-family:'Baloo 2',cursive;cursor:pointer;transition:.2s}
+.submit-btn:hover{opacity:.9}
+.submit-btn:disabled{opacity:.6;cursor:not-allowed}
+
+/* SUCCESS */
+.success-screen{text-align:center;padding:40px 24px}
+.success-icon{font-size:64px;margin-bottom:16px;animation:bounce .6s}
+@keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+.success-screen h2{font-size:26px;color:var(--green);margin-bottom:8px;font-family:'Baloo 2',cursive}
+.success-screen p{color:#555;font-size:15px;line-height:1.7;margin-bottom:6px}
+.order-id-box{background:var(--light);border-radius:10px;padding:14px;margin:16px 0;font-family:monospace;font-size:14px;color:var(--dark);font-weight:700}
+.hindi-msg{background:linear-gradient(135deg,#e8f5ee,#d4edda);border:1px solid var(--green2);border-radius:10px;padding:14px;margin-top:14px;font-size:15px;color:var(--green);font-weight:600}
+
+/* STICKY BUY BTN */
+.sticky-btn{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--dark);padding:12px 20px;z-index:500;box-shadow:0 -4px 20px rgba(0,0,0,.3)}
+.sticky-btn button{width:100%;background:linear-gradient(135deg,var(--green2),var(--green));color:#fff;border:none;padding:14px;border-radius:10px;font-size:17px;font-weight:800;font-family:'Baloo 2',cursive;cursor:pointer}
+
+/* PINCODE LOADER */
+.pincode-info{font-size:12px;color:var(--green);margin-top:4px;font-weight:600}
+.pincode-loading{font-size:12px;color:#888;margin-top:4px}
+
+@media(max-width:600px){
+  .form-row{grid-template-columns:1fr}
+  .how-step{min-width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- Announcement Bar -->
+<div class="ann-bar">
+  <span>🌿 100% Ayurvedic</span>
+  <span>🚚 FREE Shipping All India</span>
+  <span>💵 COD Available</span>
+  <span>📦 Secure Packaging</span>
+</div>
+
+<!-- Header -->
+<header>
+  <div class="logo">Vaidya<span>kart</span></div>
+  <button class="header-btn" onclick="openModal()">Order Now — COD</button>
+</header>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-badge">🌟 #1 Ayurvedic Sugar Control Formula</div>
+  <h1>Sugar Control <span>Powder</span></h1>
+  <p class="hero-tagline">शुगर को जड़ से नियंत्रित करो — प्राकृतिक जड़ी-बूटियों से</p>
+  <p class="hero-tagline-en">Control Blood Sugar Naturally with 12 Powerful Ayurvedic Herbs</p>
+
+  <div class="hero-img-placeholder">🌿</div>
+
+  <div class="price-box">
+    <span class="price-main">₹599</span>
+    <span class="price-mrp">₹1,299</span>
+    <span class="price-save">54% OFF</span>
+  </div>
+
+  <button class="order-btn" onclick="openModal()">🛒 Order Now — Cash on Delivery</button>
+
+  <div class="trust-row">
+    <div class="trust-badge"><span>💵</span> COD Available</div>
+    <div class="trust-badge"><span>🚚</span> Free Shipping</div>
+    <div class="trust-badge"><span>🌿</span> 100% Ayurvedic</div>
+    <div class="trust-badge"><span>⭐</span> 4.8/5 Rating</div>
+  </div>
+</div>
+
+<!-- Benefits -->
+<section class="benefits-bg">
+  <h2 class="section-title">Why Vaidyakart Sugar Control Powder?</h2>
+  <div class="green-line"></div>
+  <p class="section-subtitle">Trusted by 50,000+ customers across India</p>
+  <div class="benefits-grid">
+    <div class="benefit-card"><div class="benefit-icon">🩸</div><h4>Controls Blood Sugar Naturally</h4></div>
+    <div class="benefit-card"><div class="benefit-icon">💪</div><h4>Boosts Insulin Sensitivity</h4></div>
+    <div class="benefit-card"><div class="benefit-icon">🍬</div><h4>Reduces Sugar Cravings</h4></div>
+    <div class="benefit-card"><div class="benefit-icon">🫀</div><h4>Improves Pancreatic Health</h4></div>
+    <div class="benefit-card"><div class="benefit-icon">⚡</div><h4>Increases Energy Levels</h4></div>
+    <div class="benefit-card"><div class="benefit-icon">✅</div><h4>Zero Side Effects</h4></div>
+  </div>
+</section>
+
+<!-- How it Works -->
+<section>
+  <h2 class="section-title">How to Use</h2>
+  <div class="green-line"></div>
+  <p class="section-subtitle">Simple 3-step daily routine for best results</p>
+  <div class="how-grid">
+    <div class="how-step">
+      <div class="step-num">1</div>
+      <div class="step-icon">🥄</div>
+      <h3>Take 1 Teaspoon</h3>
+      <p>Measure one teaspoon of Sugar Control Powder into a glass</p>
+    </div>
+    <div class="how-step">
+      <div class="step-num">2</div>
+      <div class="step-icon">💧</div>
+      <h3>Mix in Warm Water</h3>
+      <p>Mix well in a glass of lukewarm water and stir until dissolved</p>
+    </div>
+    <div class="how-step">
+      <div class="step-num">3</div>
+      <div class="step-icon">🌅</div>
+      <h3>Drink Every Morning</h3>
+      <p>Consume on empty stomach every morning for best results in 4–6 weeks</p>
+    </div>
+  </div>
+</section>
+
+<!-- Ingredients -->
+<section class="ingredients-bg">
+  <h2 class="section-title">12 Powerful Ayurvedic Herbs</h2>
+  <div class="green-line"></div>
+  <p class="section-subtitle">Ancient wisdom. Modern science. Zero chemicals.</p>
+  <div class="ingr-grid">
+    <div class="ingr-card"><div class="ingr-icon">🌿</div><h4>Karela</h4><p>Bitter melon for glucose control</p></div>
+    <div class="ingr-card"><div class="ingr-icon">🫐</div><h4>Jamun</h4><p>Reduces sugar absorption</p></div>
+    <div class="ingr-card"><div class="ingr-icon">🌾</div><h4>Methi</h4><p>Boosts insulin sensitivity</p></div>
+    <div class="ingr-card"><div class="ingr-icon">🍃</div><h4>Giloy</h4><p>Immunity & metabolism</p></div>
+    <div class="ingr-card"><div class="ingr-icon">🌱</div><h4>Vijaysar</h4><p>Pancreatic regeneration</p></div>
+    <div class="ingr-card"><div class="ingr-icon">🍀</div><h4>Neem</h4><p>Blood purification</p></div>
+    <div class="ingr-card"><div class="ingr-icon">🍊</div><h4>Amla</h4><p>Rich in Vitamin C</p></div>
+    <div class="ingr-card"><div class="ingr-icon">🌿</div><h4>Gurmar</h4><p>"Sugar destroyer" herb</p></div>
+    <div class="ingr-card"><div class="ingr-icon">⚕️</div><h4>Ashwagandha</h4><p>Stress & cortisol balance</p></div>
+    <div class="ingr-card"><div class="ingr-icon">🌳</div><h4>Haritaki</h4><p>Digestive health</p></div>
+    <div class="ingr-card"><div class="ingr-icon">🌰</div><h4>Bibhitaki</h4><p>Anti-inflammatory</p></div>
+    <div class="ingr-card"><div class="ingr-icon">💚</div><h4>Amalaki</h4><p>Antioxidant powerhouse</p></div>
+  </div>
+</section>
+
+<!-- Reviews -->
+<section class="reviews-bg">
+  <h2 class="section-title">Real Customer Reviews</h2>
+  <div class="green-line"></div>
+  <p class="section-subtitle">Join 50,000+ happy customers from across India</p>
+  <div class="reviews-grid">
+    <div class="review-card">
+      <div class="stars">★★★★★</div>
+      <p class="review-text">"मेरी शुगर 280 से घटकर 140 आ गई 6 हफ्तों में! यह पाउडर सच में काम करता है। कोई साइड इफेक्ट भी नहीं।"</p>
+      <div class="reviewer">
+        <div class="reviewer-avatar">R</div>
+        <div class="reviewer-info"><h4>Ramesh Gupta</h4><p>Delhi, India</p><div class="verified">✅ Verified Purchase</div></div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="stars">★★★★★</div>
+      <p class="review-text">"Doctor ne insulin recommend ki thi, lekin pehle ye try kiya. Alhamdulillah sugar level bahut improve ho gayi. Bahut shukriya Vaidyakart!"</p>
+      <div class="reviewer">
+        <div class="reviewer-avatar">S</div>
+        <div class="reviewer-info"><h4>Salma Begum</h4><p>Lucknow, UP</p><div class="verified">✅ Verified Purchase</div></div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="stars">★★★★☆</div>
+      <p class="review-text">"My mother has been using this for 2 months now. Her fasting sugar went from 220 to 140. Natural and effective. Will buy again!"</p>
+      <div class="reviewer">
+        <div class="reviewer-avatar">P</div>
+        <div class="reviewer-info"><h4>Priya Sharma</h4><p>Mumbai, MH</p><div class="verified">✅ Verified Purchase</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section>
+  <h2 class="section-title">Frequently Asked Questions</h2>
+  <div class="green-line"></div>
+  <div class="faq-list" id="faqList">
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Is this safe for all types of diabetics? <span class="arrow">▼</span></div>
+      <div class="faq-a">Yes, our formula is 100% Ayurvedic and safe for Type 1 and Type 2 diabetics. However, if you are on prescribed medication, please consult your doctor before use.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How soon will I see results? <span class="arrow">▼</span></div>
+      <div class="faq-a">Most customers see improvement in blood sugar readings within 3–4 weeks with daily use. For best results, use consistently for at least 6 weeks.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Is COD (Cash on Delivery) available? <span class="arrow">▼</span></div>
+      <div class="faq-a">Yes! We offer 100% Cash on Delivery across India. Pay only when you receive the product at your doorstep.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">When will I receive my order? <span class="arrow">▼</span></div>
+      <div class="faq-a">Orders are dispatched within 24 hours and typically delivered in 4–7 business days depending on your location.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Are there any side effects? <span class="arrow">▼</span></div>
+      <div class="faq-a">No known side effects. Our formula uses only natural Ayurvedic herbs with no chemicals, steroids, or artificial additives. Safe for long-term use.</div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-logo">Vaidyakart</div>
+  <p style="opacity:.6;font-size:14px;margin-bottom:4px">India's Most Trusted Ayurvedic Health Brand</p>
+  <div class="footer-badges">
+    <div class="footer-badge">💵 Cash on Delivery</div>
+    <div class="footer-badge">🚚 Free Shipping</div>
+    <div class="footer-badge">🌿 100% Ayurvedic</div>
+    <div class="footer-badge">🔒 Secure Orders</div>
+  </div>
+  <div class="footer-bottom">© 2025 Vaidyakart. All rights reserved. | For queries: support@vaidyakart.com</div>
+</footer>
+
+<!-- Sticky Button -->
+<div class="sticky-btn" id="stickyBtn">
+  <button onclick="openModal()">🛒 Order Now — ₹599 (Cash on Delivery)</button>
+</div>
+
+<!-- Order Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <h2>🛒 Place Your Order</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody">
+      <!-- Order Summary -->
+      <div class="order-summary">
+        <h4>📦 Order Summary</h4>
+        <div class="summary-row"><span>Product</span><span>Sugar Control Powder</span></div>
+        <div class="summary-row"><span>Quantity</span><span id="sumQty">1</span></div>
+        <div class="summary-row"><span>Price per unit</span><span>₹599</span></div>
+        <div class="summary-total"><span>Total Amount</span><span id="sumTotal">₹599</span></div>
+      </div>
+
+      <!-- Form -->
+      <div class="form-group">
+        <label>Full Name *</label>
+        <input type="text" id="fname" placeholder="Ramesh Sharma" />
+      </div>
+      <div class="form-group">
+        <label>Phone Number *</label>
+        <input type="tel" id="fphone" placeholder="10-digit mobile number" maxlength="10" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Quantity *</label>
+          <select id="fqty" onchange="updateSummary()">
+            <option value="1">1 Pack</option>
+            <option value="2">2 Packs</option>
+            <option value="3">3 Packs</option>
+            <option value="4">4 Packs</option>
+            <option value="5">5 Packs</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Pincode *</label>
+          <input type="text" id="fpincode" placeholder="6-digit pincode" maxlength="6" onblur="fetchPincode()" />
+          <div id="pincodeInfo" class="pincode-info" style="display:none"></div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>City</label>
+          <input type="text" id="fcity" placeholder="Auto-filled" readonly />
+        </div>
+        <div class="form-group">
+          <label>State</label>
+          <input type="text" id="fstate" placeholder="Auto-filled" readonly />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Full Address *</label>
+        <input type="text" id="faddress" placeholder="House No, Street, Area, Landmark" />
+      </div>
+
+      <button class="submit-btn" id="submitBtn" onclick="submitOrder()">
+        ✅ Confirm Order — Cash on Delivery
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = 'https://vadikart.onrender.com';
+
+// Meta Pixel
+async function loadPixel() {
+  try {
+    const r = await fetch(API_BASE + '/api/meta');
+    const d = await r.json();
+    if (d.success && d.metaPixel) {
+      const s = document.createElement('script');
+      s.innerHTML = `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${d.metaPixel}');fbq('track','PageView');`;
+      document.head.appendChild(s);
+    }
+  } catch(e){}
+}
+loadPixel();
+
+// Sticky button
+window.addEventListener('scroll', () => {
+  document.getElementById('stickyBtn').style.display = window.scrollY > 400 ? 'block' : 'none';
+});
+
+// FAQ toggle
+function toggleFaq(el) {
+  el.classList.toggle('open');
+  el.nextElementSibling.classList.toggle('open');
+}
+
+// Modal
+function openModal() {
+  document.getElementById('modalOverlay').classList.add('active');
+  if (window.fbq) fbq('track', 'InitiateCheckout');
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+}
+
+// Update summary
+function updateSummary() {
+  const qty = parseInt(document.getElementById('fqty').value);
+  const total = qty * 599;
+  document.getElementById('sumQty').textContent = qty + ' Pack' + (qty > 1 ? 's' : '');
+  document.getElementById('sumTotal').textContent = '₹' + total;
+}
+
+// Pincode
+async function fetchPincode() {
+  const pin = document.getElementById('fpincode').value;
+  const info = document.getElementById('pincodeInfo');
+  if (pin.length !== 6) return;
+  info.className = 'pincode-loading';
+  info.style.display = 'block';
+  info.textContent = 'Fetching location...';
+  try {
+    const r = await fetch(API_BASE + '/api/pincode/' + pin);
+    const d = await r.json();
+    if (d[0]?.Status === 'Success') {
+      const po = d[0].PostOffice[0];
+      document.getElementById('fcity').value = po.District;
+      document.getElementById('fstate').value = po.State;
+      info.className = 'pincode-info';
+      info.textContent = '✅ ' + po.District + ', ' + po.State;
+    } else {
+      info.className = 'pincode-info';
+      info.style.color = '#e03030';
+      info.textContent = '❌ Invalid pincode';
+    }
+  } catch(e) {
+    info.textContent = '';
+    info.style.display = 'none';
+  }
+}
+
+// Submit order
+async function submitOrder() {
+  const name = document.getElementById('fname').value.trim();
+  const phone = document.getElementById('fphone').value.trim();
+  const pincode = document.getElementById('fpincode').value.trim();
+  const city = document.getElementById('fcity').value.trim();
+  const state = document.getElementById('fstate').value.trim();
+  const address = document.getElementById('faddress').value.trim();
+  const qty = parseInt(document.getElementById('fqty').value);
+
+  if (!name) return alert('Please enter your full name');
+  if (!/^\d{10}$/.test(phone)) return alert('Please enter a valid 10-digit phone number');
+  if (!pincode || pincode.length !== 6) return alert('Please enter a valid 6-digit pincode');
+  if (!address) return alert('Please enter your full address');
+
+  const total = qty * 599;
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Placing Order...';
+
+  try {
+    const r = await fetch(API_BASE + '/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name, phone, address, pincode, city, state,
+        product: 'sugar-control-powder',
+        productName: 'Sugar Control Powder',
+        productId: 'vk-scp-001',
+        quantity: qty,
+        price: 599,
+        totalAmount: total
+      })
+    });
+    const d = await r.json();
+    if (d.success) {
+      if (window.fbq) fbq('track', 'Purchase', { value: total, currency: 'INR' });
+      document.getElementById('modalBody').innerHTML = `
+        <div class="success-screen">
+          <div class="success-icon">🎉</div>
+          <h2>Order Placed Successfully!</h2>
+          <p>Thank you, <strong>${name}</strong>! Your order has been received.</p>
+          <div class="order-id-box">Order ID: ${d.orderId}</div>
+          <p>📱 Our team will call you at <strong>${phone}</strong> to confirm your order.</p>
+          <p>🚚 Expected delivery: <strong>4–7 business days</strong></p>
+          <div class="hindi-msg">🌿 आपका ऑर्डर सफलतापूर्वक दर्ज हो गया है!<br>हमारी टीम जल्द ही आपसे संपर्क करेगी।<br>धन्यवाद — वैद्यकार्ट परिवार 🙏</div>
+        </div>`;
+    } else {
+      btn.disabled = false;
+      btn.textContent = '✅ Confirm Order — Cash on Delivery';
+      alert('Something went wrong. Please try again.');
+    }
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = '✅ Confirm Order — Cash on Delivery';
+    alert('Network error. Please check your connection and try again.');
+  }
+}
+
+// Close modal on overlay click
+document.getElementById('modalOverlay').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+});
+</script>
+</body>
+</html>
