@@ -166,6 +166,8 @@ footer{background:var(--dark);color:#fff;padding:40px 20px;text-align:center}
 /* PINCODE LOADER */
 .pincode-info{font-size:12px;color:var(--green);margin-top:4px;font-weight:600}
 .pincode-loading{font-size:12px;color:#888;margin-top:4px}
+.pincode-invalid{font-size:12px;color:var(--red);margin-top:4px;font-weight:600}
+.form-group input.input-error{border-color:var(--red)!important}
 
 @media(max-width:600px){
   .form-row{grid-template-columns:1fr}
@@ -370,7 +372,7 @@ footer{background:var(--dark);color:#fff;padding:40px 20px;text-align:center}
         </div>
         <div class="form-group">
           <label>Pincode *</label>
-          <input type="text" id="fpincode" placeholder="6-digit pincode" maxlength="6" onblur="fetchPincode()" />
+          <input type="text" id="fpincode" placeholder="6-digit pincode" maxlength="6" oninput="onPincodeInput()" inputmode="numeric" pattern="\d{6}" />
           <div id="pincodeInfo" class="pincode-info" style="display:none"></div>
         </div>
       </div>
@@ -386,7 +388,11 @@ footer{background:var(--dark);color:#fff;padding:40px 20px;text-align:center}
       </div>
       <div class="form-group">
         <label>Full Address *</label>
-        <input type="text" id="faddress" placeholder="House No, Street, Area, Landmark" />
+        <input type="text" id="faddress" placeholder="House No, Street, Area" />
+      </div>
+      <div class="form-group">
+        <label>Landmark <span style="font-size:11px;color:#888;font-weight:400">(वैकल्पिक)</span></label>
+        <input type="text" id="flandmark" placeholder="आस पास की जगह — e.g. Near School, Mandir ke paas" />
       </div>
       <button class="submit-btn" id="submitBtn" onclick="submitOrder()">
         ✅ Confirm Order — Cash on Delivery
@@ -574,15 +580,44 @@ function updateSummary() {
   document.getElementById('sumTotal').textContent = '₹' + total.toLocaleString('en-IN');
 }
 
+// ── VISITOR PING ────────────────────────────────────────────────────
+(function() {
+  const sessionId = 'vk_' + Math.random().toString(36).slice(2) + Date.now();
+  function ping() {
+    fetch(API_BASE + '/api/visitors/ping', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, page: '/' })
+    }).catch(() => {});
+  }
+  ping();
+  setInterval(ping, 25000);
+})();
+
 // ── PINCODE LOOKUP ──────────────────────────────────────────────────
-async function fetchPincode() {
-  const pin = document.getElementById('fpincode').value;
+let _pincodeValid = false;
+
+function onPincodeInput() {
+  const pin = document.getElementById('fpincode').value.replace(/\D/g, '');
+  document.getElementById('fpincode').value = pin;
   const info = document.getElementById('pincodeInfo');
-  if (pin.length !== 6) return;
+  if (pin.length !== 6) {
+    _pincodeValid = false;
+    document.getElementById('fcity').value = '';
+    document.getElementById('fstate').value = '';
+    info.style.display = 'none';
+    return;
+  }
+  fetchPincode(pin);
+}
+
+async function fetchPincode(pin) {
+  const info = document.getElementById('pincodeInfo');
   info.className = 'pincode-loading';
   info.style.display = 'block';
   info.style.color = '';
   info.textContent = 'Fetching location...';
+  _pincodeValid = false;
   try {
     const r = await fetch(API_BASE + '/api/pincode/' + pin);
     const d = await r.json();
@@ -590,12 +625,18 @@ async function fetchPincode() {
       const po = d[0].PostOffice[0];
       document.getElementById('fcity').value  = po.District;
       document.getElementById('fstate').value = po.State;
+      document.getElementById('fpincode').classList.remove('input-error');
       info.className = 'pincode-info';
       info.textContent = '✅ ' + po.District + ', ' + po.State;
+      _pincodeValid = true;
     } else {
-      info.className = 'pincode-info';
-      info.style.color = '#e03030';
-      info.textContent = '❌ Invalid pincode';
+      document.getElementById('fcity').value = '';
+      document.getElementById('fstate').value = '';
+      document.getElementById('fpincode').classList.add('input-error');
+      info.className = 'pincode-invalid';
+      info.style.color = '';
+      info.textContent = '❌ Invalid pincode — delivery not available here';
+      _pincodeValid = false;
     }
   } catch(e) {
     info.style.display = 'none';
@@ -604,19 +645,29 @@ async function fetchPincode() {
 
 // ── SUBMIT ORDER ────────────────────────────────────────────────────
 async function submitOrder() {
-  const name    = document.getElementById('fname').value.trim();
-  const phone   = document.getElementById('fphone').value.trim();
-  const pincode = document.getElementById('fpincode').value.trim();
-  const city    = document.getElementById('fcity').value.trim();
-  const state   = document.getElementById('fstate').value.trim();
-  const address = document.getElementById('faddress').value.trim();
-  const qty     = parseInt(document.getElementById('fqty').value);
+  const name     = document.getElementById('fname').value.trim();
+  const phone    = document.getElementById('fphone').value.trim();
+  const pincode  = document.getElementById('fpincode').value.trim();
+  const city     = document.getElementById('fcity').value.trim();
+  const state    = document.getElementById('fstate').value.trim();
+  const address  = document.getElementById('faddress').value.trim();
+  const landmark = document.getElementById('flandmark').value.trim();
+  const qty      = parseInt(document.getElementById('fqty').value);
 
   if (!name)                         return alert('Please enter your full name');
   if (!/^\d{10}$/.test(phone))       return alert('Please enter a valid 10-digit phone number');
-  if (!pincode || pincode.length!==6) return alert('Please enter a valid 6-digit pincode');
+  if (!pincode || pincode.length !== 6) return alert('Please enter a valid 6-digit pincode');
+  if (!_pincodeValid || !city || !state) {
+    document.getElementById('fpincode').classList.add('input-error');
+    const info = document.getElementById('pincodeInfo');
+    info.style.display = 'block';
+    info.className = 'pincode-invalid';
+    info.textContent = '❌ Please enter a valid pincode before placing order';
+    return alert('Invalid pincode. Please enter a correct 6-digit pincode to proceed.');
+  }
   if (!address)                      return alert('Please enter your full address');
 
+  const fullAddress = address + (landmark ? ', ' + landmark : '');
   const total = qty * productData.price;
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
@@ -627,7 +678,7 @@ async function submitOrder() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name, phone, address, pincode, city, state,
+        name, phone, address: fullAddress, pincode, city, state,
         product:     productData.product,
         productName: productData.name,
         productId:   productData.productId,

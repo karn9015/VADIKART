@@ -287,14 +287,15 @@ app.get('/api/stats', requireAdmin, async (req, res) => {
       if (from) dateQuery.createdAt.$gte = new Date(from);
       if (to) { const d = new Date(to); d.setHours(23,59,59,999); dateQuery.createdAt.$lte = d; }
     }
-    const [totalOrders, newOrders, confirmedOrders, shippedOrders, deliveredOrders, cancelledOrders, revenueData] = await Promise.all([
+    const [totalOrders, newOrders, confirmedOrders, shippedOrders, deliveredOrders, cancelledOrders, revenueData, latestOrders] = await Promise.all([
       Order.countDocuments(dateQuery),
       Order.countDocuments({ ...dateQuery, status: 'new' }),
       Order.countDocuments({ ...dateQuery, status: 'confirmed' }),
       Order.countDocuments({ ...dateQuery, status: 'shipped' }),
       Order.countDocuments({ ...dateQuery, status: 'delivered' }),
       Order.countDocuments({ ...dateQuery, status: 'cancelled' }),
-      Order.aggregate([{ $match: { ...dateQuery, status: { $ne: 'cancelled' } } }, { $group: { _id: null, total: { $sum: '$totalAmount' } } }])
+      Order.aggregate([{ $match: { ...dateQuery, status: { $ne: 'cancelled' } } }, { $group: { _id: null, total: { $sum: '$totalAmount' } } }]),
+      Order.find(dateQuery && Object.keys(dateQuery).length ? dateQuery : {}).sort({ createdAt: -1 }).limit(10)
     ]);
     const revenue = revenueData[0]?.total || 0;
     const chartData = await Order.aggregate([
@@ -303,7 +304,7 @@ app.get('/api/stats', requireAdmin, async (req, res) => {
       { $sort: { _id: 1 } },
       { $limit: 30 }
     ]);
-    res.json({ success: true, totalOrders, newOrders, confirmedOrders, shippedOrders, deliveredOrders, cancelledOrders, revenue, chartData });
+    res.json({ success: true, totalOrders, newOrders, confirmedOrders, shippedOrders, deliveredOrders, cancelledOrders, revenue, chartData, latestOrders });
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
