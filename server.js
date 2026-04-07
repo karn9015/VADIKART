@@ -27,7 +27,7 @@ const orderSchema = new mongoose.Schema({
   size: String,
   price: Number,
   totalAmount: Number,
-  addressScore: { type: Number, default: 0 }, // completeness score 0-100
+  addressScore: { type: Number, default: 0 },
   status: { type: String, enum: ['new','confirmed','shipped','delivered','cancelled'], default: 'new' },
   createdAt: { type: Date, default: Date.now }
 });
@@ -37,7 +37,7 @@ const productSchema = new mongoose.Schema({
   description: String,
   price: Number,
   mrp: Number,
-  images: [String],
+  images: [String],      // supports 1–3 images
   benefits: [String],
   ingredients: String,
   howToUse: String,
@@ -51,9 +51,23 @@ const settingSchema = new mongoose.Schema({
   backendUrl: String
 });
 
-const Order = mongoose.model('Order', orderSchema);
+// ─── TOKEN STORE (in-memory, simple) ────────────────────────────────
+// For production consider JWT, but this keeps it dependency-free
+const activeTokens = new Set();
+
+const Order   = mongoose.model('Order',   orderSchema);
 const Product = mongoose.model('Product', productSchema);
 const Setting = mongoose.model('Setting', settingSchema);
+
+// ─── ADMIN AUTH MIDDLEWARE ───────────────────────────────────────────
+function requireAdmin(req, res, next) {
+  const auth = req.headers['authorization'] || '';
+  const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+  if (!token || !activeTokens.has(token)) {
+    return res.status(401).json({ success: false, error: 'Unauthorized' });
+  }
+  next();
+}
 
 // ─── HELPER: address score ───────────────────────────────────────────
 function calcAddressScore(addr, pincode, city, state) {
@@ -66,7 +80,12 @@ function calcAddressScore(addr, pincode, city, state) {
   return score;
 }
 
-// ─── ORDER ROUTES ────────────────────────────────────────────────────
+// ─── PUBLIC ROUTES ───────────────────────────────────────────────────
+
+// Health check
+app.get('/', (req, res) => res.json({ status: 'ok', brand: 'Vaidyakart' }));
+
+// Place order (public — customers submit from frontend)
 app.post('/api/orders', async (req, res) => {
   try {
     const { name, phone, address, pincode, city, state, product, productName, productId, quantity, size, price, totalAmount } = req.body;
@@ -77,7 +96,59 @@ app.post('/api/orders', async (req, res) => {
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
-app.get('/api/orders', async (req, res) => {
+// Public products (active only — used by frontend landing page)
+app.get('/api/products', async (req, res) => {
+  try {
+    const products = await Product.find({ active: true });
+    res.json({ success: true, products });
+  } catch(e) { res.json({ success: false, error: e.message }); }
+});
+
+// Pincode lookup (public)
+app.get('/api/pincode/:pin', async (req, res) => {
+  try {
+    const resp = await fetch(`https://api.postalpincode.in/pincode/${req.params.pin}`);
+    const data = await resp.json();
+    res.json(data);
+  } catch(e) { res.json([{ Status: 'Error' }]); }
+});
+
+// Meta pixel (public read)
+app.get('/api/meta', async (req, res) => {
+  try {
+    const s = await Setting.findOne();
+    res.json({ success: true, metaPixel: s?.metaPixel || '' });
+  } catch(e) { res.json({ success: false, error: e.message }); }
+});
+
+// ─── ADMIN LOGIN ──────────────────────────────────────────────────────
+app.post('/api/admin/login', (req, res) => {
+  const { username, password } = req.body;
+  if (
+    username === process.env.ADMIN_USER &&
+    password === process.env.ADMIN_PASS
+  ) {
+    const token = 'vk_admin_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    activeTokens.add(token);
+    // Auto-expire token after 24 hours
+    setTimeout(() => activeTokens.delete(token), 24 * 60 * 60 * 1000);
+    res.json({ success: true, token });
+  } else {
+    res.json({ success: false, error: 'Invalid credentials' });
+  }
+});
+
+// Admin logout
+app.post('/api/admin/logout', requireAdmin, (req, res) => {
+  const token = req.headers['authorization'].slice(7);
+  activeTokens.delete(token);
+  res.json({ success: true });
+});
+
+// ─── ADMIN-PROTECTED ROUTES ───────────────────────────────────────────
+
+// All orders (admin)
+app.get('/api/orders', requireAdmin, async (req, res) => {
   try {
     const { status, search, from, to, page = 1, limit = 50 } = req.query;
     let query = {};
@@ -99,7 +170,8 @@ app.get('/api/orders', async (req, res) => {
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
-app.put('/api/orders/:id/status', async (req, res) => {
+// Update order status
+app.put('/api/orders/:id/status', requireAdmin, async (req, res) => {
   try {
     const { status } = req.body;
     await Order.findByIdAndUpdate(req.params.id, { status });
@@ -107,23 +179,25 @@ app.put('/api/orders/:id/status', async (req, res) => {
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
-// Bulk status update
-app.put('/api/orders/bulk/status', async (req, res) => {
+// Bulk status update — MUST be before /api/orders/:id routes
+app.put('/api/orders/bulk/status', requireAdmin, async (req, res) => {
   try {
     const { ids, status } = req.body;
-    await Order.updateMany({ _id: { $in: ids } }, { status });
-    res.json({ success: true, updated: ids.length });
+    const result = await Order.updateMany({ _id: { $in: ids } }, { status });
+    res.json({ success: true, updated: result.modifiedCount });
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
-app.delete('/api/orders/:id', async (req, res) => {
+// Delete order
+app.delete('/api/orders/:id', requireAdmin, async (req, res) => {
   try {
     await Order.findByIdAndDelete(req.params.id);
     res.json({ success: true });
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
-app.get('/api/orders/export/csv', async (req, res) => {
+// Export CSV
+app.get('/api/orders/export/csv', requireAdmin, async (req, res) => {
   try {
     const { from, to, status } = req.query;
     let query = {};
@@ -148,22 +222,16 @@ app.get('/api/orders/export/csv', async (req, res) => {
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
-// ─── PRODUCT ROUTES ──────────────────────────────────────────────────
-app.get('/api/products', async (req, res) => {
-  try {
-    const products = await Product.find({ active: true });
-    res.json({ success: true, products });
-  } catch(e) { res.json({ success: false, error: e.message }); }
-});
-
-app.get('/api/products/all', async (req, res) => {
+// All products (admin — includes inactive)
+app.get('/api/products/all', requireAdmin, async (req, res) => {
   try {
     const products = await Product.find();
     res.json({ success: true, products });
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
-app.post('/api/products', async (req, res) => {
+// Create product
+app.post('/api/products', requireAdmin, async (req, res) => {
   try {
     const p = new Product(req.body);
     await p.save();
@@ -171,32 +239,24 @@ app.post('/api/products', async (req, res) => {
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
-app.put('/api/products/:id', async (req, res) => {
+// Update product
+app.put('/api/products/:id', requireAdmin, async (req, res) => {
   try {
     const p = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json({ success: true, product: p });
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
-app.delete('/api/products/:id', async (req, res) => {
+// Delete product
+app.delete('/api/products/:id', requireAdmin, async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.id);
     res.json({ success: true });
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
-// ─── ADMIN LOGIN ─────────────────────────────────────────────────────
-app.post('/api/admin/login', (req, res) => {
-  const { username, password } = req.body;
-  if (username === process.env.ADMIN_USER && password === process.env.ADMIN_PASS) {
-    res.json({ success: true, token: 'vk_admin_' + Date.now() });
-  } else {
-    res.json({ success: false, error: 'Invalid credentials' });
-  }
-});
-
-// ─── STATS ───────────────────────────────────────────────────────────
-app.get('/api/stats', async (req, res) => {
+// Stats (admin)
+app.get('/api/stats', requireAdmin, async (req, res) => {
   try {
     const { from, to } = req.query;
     let dateQuery = {};
@@ -215,29 +275,46 @@ app.get('/api/stats', async (req, res) => {
       Order.aggregate([{ $match: { ...dateQuery, status: { $ne: 'cancelled' } } }, { $group: { _id: null, total: { $sum: '$totalAmount' } } }])
     ]);
     const revenue = revenueData[0]?.total || 0;
-
-    // Daily chart data (last 7 days or date range)
     const chartData = await Order.aggregate([
       { $match: dateQuery },
       { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, count: { $sum: 1 }, revenue: { $sum: '$totalAmount' } } },
       { $sort: { _id: 1 } },
       { $limit: 30 }
     ]);
-
     res.json({ success: true, totalOrders, newOrders, confirmedOrders, shippedOrders, deliveredOrders, cancelledOrders, revenue, chartData });
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
-// ─── PINCODE ─────────────────────────────────────────────────────────
-app.get('/api/pincode/:pin', async (req, res) => {
+// Meta pixel (admin write)
+app.post('/api/meta', requireAdmin, async (req, res) => {
   try {
-    const resp = await fetch(`https://api.postalpincode.in/pincode/${req.params.pin}`);
-    const data = await resp.json();
-    res.json(data);
-  } catch(e) { res.json([{ Status: 'Error' }]); }
+    const { metaPixel } = req.body;
+    let s = await Setting.findOne();
+    if (s) { s.metaPixel = metaPixel; await s.save(); }
+    else { s = await Setting.create({ metaPixel }); }
+    res.json({ success: true });
+  } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
-// ─── SEED ─────────────────────────────────────────────────────────────
+// Settings (admin)
+app.get('/api/settings', requireAdmin, async (req, res) => {
+  try {
+    const s = await Setting.findOne();
+    res.json({ success: true, metaPixel: s?.metaPixel || '', backendUrl: s?.backendUrl || '' });
+  } catch(e) { res.json({ success: false, error: e.message }); }
+});
+
+app.post('/api/settings', requireAdmin, async (req, res) => {
+  try {
+    const { metaPixel, backendUrl } = req.body;
+    let s = await Setting.findOne();
+    if (s) { if(metaPixel!==undefined) s.metaPixel=metaPixel; if(backendUrl!==undefined) s.backendUrl=backendUrl; await s.save(); }
+    else { s = await Setting.create({ metaPixel, backendUrl }); }
+    res.json({ success: true });
+  } catch(e) { res.json({ success: false, error: e.message }); }
+});
+
+// Seed default product
 app.post('/api/seed', async (req, res) => {
   try {
     const count = await Product.countDocuments();
@@ -260,45 +337,6 @@ app.post('/api/seed', async (req, res) => {
     }
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
-
-// ─── META PIXEL + SETTINGS ───────────────────────────────────────────
-app.get('/api/meta', async (req, res) => {
-  try {
-    const s = await Setting.findOne();
-    res.json({ success: true, metaPixel: s?.metaPixel || '' });
-  } catch(e) { res.json({ success: false, error: e.message }); }
-});
-
-app.post('/api/meta', async (req, res) => {
-  try {
-    const { metaPixel } = req.body;
-    let s = await Setting.findOne();
-    if (s) { s.metaPixel = metaPixel; await s.save(); }
-    else { s = await Setting.create({ metaPixel }); }
-    res.json({ success: true });
-  } catch(e) { res.json({ success: false, error: e.message }); }
-});
-
-// Backend URL setting (stored in DB for admin reference)
-app.get('/api/settings', async (req, res) => {
-  try {
-    const s = await Setting.findOne();
-    res.json({ success: true, metaPixel: s?.metaPixel || '', backendUrl: s?.backendUrl || '' });
-  } catch(e) { res.json({ success: false, error: e.message }); }
-});
-
-app.post('/api/settings', async (req, res) => {
-  try {
-    const { metaPixel, backendUrl } = req.body;
-    let s = await Setting.findOne();
-    if (s) { if(metaPixel!==undefined) s.metaPixel=metaPixel; if(backendUrl!==undefined) s.backendUrl=backendUrl; await s.save(); }
-    else { s = await Setting.create({ metaPixel, backendUrl }); }
-    res.json({ success: true });
-  } catch(e) { res.json({ success: false, error: e.message }); }
-});
-
-// Health check
-app.get('/', (req, res) => res.json({ status: 'ok', brand: 'Vaidyakart' }));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Vaidyakart server running on port ${PORT}`));

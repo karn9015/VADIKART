@@ -42,14 +42,26 @@ header{background:var(--dark);padding:12px 20px;display:flex;align-items:center;
 .price-main{font-size:42px;font-weight:800;font-family:'Baloo 2',cursive;color:#fff}
 .price-mrp{font-size:20px;text-decoration:line-through;opacity:.5}
 .price-save{background:var(--red);color:#fff;padding:4px 12px;border-radius:20px;font-size:13px;font-weight:700}
-.hero-img{width:220px;max-width:80%;margin:0 auto 24px;display:block;border-radius:16px;background:rgba(255,255,255,.08);padding:20px}
-.hero-img-placeholder{width:200px;height:200px;background:linear-gradient(135deg,var(--green) 0%,var(--green2) 100%);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:80px}
 .order-btn{background:linear-gradient(135deg,var(--green2),var(--green));color:#fff;border:none;padding:16px 40px;border-radius:10px;font-size:18px;font-weight:800;font-family:'Baloo 2',cursive;cursor:pointer;box-shadow:0 6px 24px rgba(26,122,74,.5);transition:transform .2s;width:100%;max-width:360px;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
 .order-btn:hover{transform:scale(1.04)}
 .trust-row{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:20px}
 .trust-badge{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);padding:7px 14px;border-radius:20px;font-size:13px;font-weight:600}
 .trust-badge span{font-size:16px}
+
+/* ── PRODUCT IMAGE GALLERY ── */
+.gallery-wrap{position:relative;width:280px;max-width:88%;margin:0 auto 24px}
+.gallery-track{display:flex;overflow:hidden;border-radius:16px;background:rgba(255,255,255,.08)}
+.gallery-slide{min-width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;transition:transform .4s cubic-bezier(.4,0,.2,1);flex-shrink:0}
+.gallery-slide img{width:100%;height:100%;object-fit:cover;border-radius:16px;display:block}
+.gallery-slide .gallery-placeholder{width:100%;aspect-ratio:1/1;background:linear-gradient(135deg,var(--green) 0%,var(--green2) 100%);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:90px}
+.gallery-dots{display:flex;justify-content:center;gap:8px;margin-top:10px}
+.gallery-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.3);cursor:pointer;transition:.3s;border:none;padding:0}
+.gallery-dot.active{background:#fff;transform:scale(1.2)}
+.gallery-arrows{position:absolute;top:50%;transform:translateY(-50%);width:100%;display:flex;justify-content:space-between;padding:0 8px;pointer-events:none}
+.gallery-arrow{pointer-events:all;background:rgba(0,0,0,.45);color:#fff;border:none;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;backdrop-filter:blur(4px)}
+.gallery-arrow:hover{background:rgba(0,0,0,.7)}
+.gallery-arrow.hide{opacity:0;pointer-events:none}
 
 /* SECTIONS */
 section{padding:50px 20px}
@@ -67,7 +79,7 @@ section{padding:50px 20px}
 
 /* HOW IT WORKS */
 .how-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:24px;max-width:900px;margin:0 auto}
-.how-step{background:#fff;border-radius:16px;padding:30px 24px;text-align:center;flex:1;min-width:220px;max-width:280px;box-shadow:0 4px 20px rgba(0,0,0,.08);position:relative}
+.how-step{background:#fff;border-radius:16px;padding:30px 24px;text-align:center;flex:1;min-width:220px;max-width:280px;box-shadow:0 4px 20px rgba(0,0,0,.08)}
 .step-num{width:40px;height:40px;background:var(--green2);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;font-family:'Baloo 2',cursive;margin:0 auto 14px}
 .how-step h3{font-size:16px;margin-bottom:8px;color:var(--dark)}
 .how-step p{font-size:13px;color:#666;line-height:1.6}
@@ -115,7 +127,7 @@ footer{background:var(--dark);color:#fff;padding:40px 20px;text-align:center}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;backdrop-filter:blur(4px)}
 .modal-overlay.active{display:flex;align-items:center;justify-content:center;padding:16px}
 .modal{background:#fff;border-radius:20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
-.modal-header{background:linear-gradient(135deg,var(--dark),#1a3025);color:#fff;padding:20px 24px;border-radius:20px 20px 0 0;display:flex;justify-content:space-between;align-items:center}
+.modal-header{background:linear-gradient(135deg,var(--dark),#1a3025);color:#fff;padding:20px 24px;border-radius:20px 20px 0 0;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5}
 .modal-header h2{font-size:20px;font-family:'Baloo 2',cursive}
 .modal-close{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;opacity:.8}
 .modal-body{padding:24px}
@@ -152,6 +164,7 @@ footer{background:var(--dark);color:#fff;padding:40px 20px;text-align:center}
 @media(max-width:600px){
   .form-row{grid-template-columns:1fr}
   .how-step{min-width:100%}
+  .gallery-wrap{width:240px}
 }
 </style>
 </head>
@@ -174,16 +187,26 @@ footer{background:var(--dark);color:#fff;padding:40px 20px;text-align:center}
 <!-- Hero -->
 <div class="hero">
   <div class="hero-badge">🌟 #1 Ayurvedic Sugar Control Formula</div>
-  <h1>Sugar Control <span>Powder</span></h1>
+  <h1 id="heroTitle">Sugar Control <span>Powder</span></h1>
   <p class="hero-tagline">शुगर को जड़ से नियंत्रित करो — प्राकृतिक जड़ी-बूटियों से</p>
   <p class="hero-tagline-en">Control Blood Sugar Naturally with 12 Powerful Ayurvedic Herbs</p>
 
-  <div class="hero-img-placeholder">🌿</div>
+  <!-- ── PRODUCT IMAGE GALLERY ── -->
+  <div class="gallery-wrap" id="galleryWrap">
+    <div class="gallery-track" id="galleryTrack">
+      <!-- slides injected by JS -->
+    </div>
+    <div class="gallery-arrows">
+      <button class="gallery-arrow hide" id="galleryPrev" onclick="galleryMove(-1)">&#8249;</button>
+      <button class="gallery-arrow hide" id="galleryNext" onclick="galleryMove(1)">&#8250;</button>
+    </div>
+  </div>
+  <div class="gallery-dots" id="galleryDots"></div>
 
   <div class="price-box">
-    <span class="price-main">₹599</span>
-    <span class="price-mrp">₹1,299</span>
-    <span class="price-save">54% OFF</span>
+    <span class="price-main" id="heroPrice">₹599</span>
+    <span class="price-mrp" id="heroMrp">₹1,299</span>
+    <span class="price-save" id="heroDiscount">54% OFF</span>
   </div>
 
   <button class="order-btn" onclick="openModal()">🛒 Order Now — Cash on Delivery</button>
@@ -201,7 +224,7 @@ footer{background:var(--dark);color:#fff;padding:40px 20px;text-align:center}
   <h2 class="section-title">Why Vaidyakart Sugar Control Powder?</h2>
   <div class="green-line"></div>
   <p class="section-subtitle">Trusted by 50,000+ customers across India</p>
-  <div class="benefits-grid">
+  <div class="benefits-grid" id="benefitsGrid">
     <div class="benefit-card"><div class="benefit-icon">🩸</div><h4>Controls Blood Sugar Naturally</h4></div>
     <div class="benefit-card"><div class="benefit-icon">💪</div><h4>Boosts Insulin Sensitivity</h4></div>
     <div class="benefit-card"><div class="benefit-icon">🍬</div><h4>Reduces Sugar Cravings</h4></div>
@@ -215,26 +238,11 @@ footer{background:var(--dark);color:#fff;padding:40px 20px;text-align:center}
 <section>
   <h2 class="section-title">How to Use</h2>
   <div class="green-line"></div>
-  <p class="section-subtitle">Simple 3-step daily routine for best results</p>
+  <p class="section-subtitle" id="howToUseText">Simple 3-step daily routine for best results</p>
   <div class="how-grid">
-    <div class="how-step">
-      <div class="step-num">1</div>
-      <div class="step-icon">🥄</div>
-      <h3>Take 1 Teaspoon</h3>
-      <p>Measure one teaspoon of Sugar Control Powder into a glass</p>
-    </div>
-    <div class="how-step">
-      <div class="step-num">2</div>
-      <div class="step-icon">💧</div>
-      <h3>Mix in Warm Water</h3>
-      <p>Mix well in a glass of lukewarm water and stir until dissolved</p>
-    </div>
-    <div class="how-step">
-      <div class="step-num">3</div>
-      <div class="step-icon">🌅</div>
-      <h3>Drink Every Morning</h3>
-      <p>Consume on empty stomach every morning for best results in 4–6 weeks</p>
-    </div>
+    <div class="how-step"><div class="step-num">1</div><div class="step-icon">🥄</div><h3>Take 1 Teaspoon</h3><p>Measure one teaspoon of Sugar Control Powder into a glass</p></div>
+    <div class="how-step"><div class="step-num">2</div><div class="step-icon">💧</div><h3>Mix in Warm Water</h3><p>Mix well in a glass of lukewarm water and stir until dissolved</p></div>
+    <div class="how-step"><div class="step-num">3</div><div class="step-icon">🌅</div><h3>Drink Every Morning</h3><p>Consume on empty stomach every morning for best results in 4–6 weeks</p></div>
   </div>
 </section>
 
@@ -268,26 +276,17 @@ footer{background:var(--dark);color:#fff;padding:40px 20px;text-align:center}
     <div class="review-card">
       <div class="stars">★★★★★</div>
       <p class="review-text">"मेरी शुगर 280 से घटकर 140 आ गई 6 हफ्तों में! यह पाउडर सच में काम करता है। कोई साइड इफेक्ट भी नहीं।"</p>
-      <div class="reviewer">
-        <div class="reviewer-avatar">R</div>
-        <div class="reviewer-info"><h4>Ramesh Gupta</h4><p>Delhi, India</p><div class="verified">✅ Verified Purchase</div></div>
-      </div>
+      <div class="reviewer"><div class="reviewer-avatar">R</div><div class="reviewer-info"><h4>Ramesh Gupta</h4><p>Delhi, India</p><div class="verified">✅ Verified Purchase</div></div></div>
     </div>
     <div class="review-card">
       <div class="stars">★★★★★</div>
-      <p class="review-text">"Doctor ne insulin recommend ki thi, lekin pehle ye try kiya. Alhamdulillah sugar level bahut improve ho gayi. Bahut shukriya Vaidyakart!"</p>
-      <div class="reviewer">
-        <div class="reviewer-avatar">S</div>
-        <div class="reviewer-info"><h4>Salma Begum</h4><p>Lucknow, UP</p><div class="verified">✅ Verified Purchase</div></div>
-      </div>
+      <p class="review-text">"Doctor ne insulin recommend ki thi, lekin pehle ye try kiya. Sugar level bahut improve ho gayi. Bahut shukriya Vaidyakart!"</p>
+      <div class="reviewer"><div class="reviewer-avatar">S</div><div class="reviewer-info"><h4>Salma Begum</h4><p>Lucknow, UP</p><div class="verified">✅ Verified Purchase</div></div></div>
     </div>
     <div class="review-card">
       <div class="stars">★★★★☆</div>
       <p class="review-text">"My mother has been using this for 2 months now. Her fasting sugar went from 220 to 140. Natural and effective. Will buy again!"</p>
-      <div class="reviewer">
-        <div class="reviewer-avatar">P</div>
-        <div class="reviewer-info"><h4>Priya Sharma</h4><p>Mumbai, MH</p><div class="verified">✅ Verified Purchase</div></div>
-      </div>
+      <div class="reviewer"><div class="reviewer-avatar">P</div><div class="reviewer-info"><h4>Priya Sharma</h4><p>Mumbai, MH</p><div class="verified">✅ Verified Purchase</div></div></div>
     </div>
   </div>
 </section>
@@ -296,27 +295,12 @@ footer{background:var(--dark);color:#fff;padding:40px 20px;text-align:center}
 <section>
   <h2 class="section-title">Frequently Asked Questions</h2>
   <div class="green-line"></div>
-  <div class="faq-list" id="faqList">
-    <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">Is this safe for all types of diabetics? <span class="arrow">▼</span></div>
-      <div class="faq-a">Yes, our formula is 100% Ayurvedic and safe for Type 1 and Type 2 diabetics. However, if you are on prescribed medication, please consult your doctor before use.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">How soon will I see results? <span class="arrow">▼</span></div>
-      <div class="faq-a">Most customers see improvement in blood sugar readings within 3–4 weeks with daily use. For best results, use consistently for at least 6 weeks.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">Is COD (Cash on Delivery) available? <span class="arrow">▼</span></div>
-      <div class="faq-a">Yes! We offer 100% Cash on Delivery across India. Pay only when you receive the product at your doorstep.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">When will I receive my order? <span class="arrow">▼</span></div>
-      <div class="faq-a">Orders are dispatched within 24 hours and typically delivered in 4–7 business days depending on your location.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">Are there any side effects? <span class="arrow">▼</span></div>
-      <div class="faq-a">No known side effects. Our formula uses only natural Ayurvedic herbs with no chemicals, steroids, or artificial additives. Safe for long-term use.</div>
-    </div>
+  <div class="faq-list">
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Is this safe for all types of diabetics? <span class="arrow">▼</span></div><div class="faq-a">Yes, our formula is 100% Ayurvedic and safe for Type 1 and Type 2 diabetics. However, if you are on prescribed medication, please consult your doctor before use.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How soon will I see results? <span class="arrow">▼</span></div><div class="faq-a">Most customers see improvement in blood sugar readings within 3–4 weeks with daily use. For best results, use consistently for at least 6 weeks.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Is COD (Cash on Delivery) available? <span class="arrow">▼</span></div><div class="faq-a">Yes! We offer 100% Cash on Delivery across India. Pay only when you receive the product at your doorstep.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">When will I receive my order? <span class="arrow">▼</span></div><div class="faq-a">Orders are dispatched within 24 hours and typically delivered in 4–7 business days depending on your location.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Are there any side effects? <span class="arrow">▼</span></div><div class="faq-a">No known side effects. Our formula uses only natural Ayurvedic herbs with no chemicals, steroids, or artificial additives. Safe for long-term use.</div></div>
   </div>
 </section>
 
@@ -330,12 +314,12 @@ footer{background:var(--dark);color:#fff;padding:40px 20px;text-align:center}
     <div class="footer-badge">🌿 100% Ayurvedic</div>
     <div class="footer-badge">🔒 Secure Orders</div>
   </div>
-  <div class="footer-bottom">© 2025 Vaidyakart. All rights reserved. | For queries: support@vaidyakart.com</div>
+  <div class="footer-bottom">© 2025 Vaidyakart. All rights reserved.</div>
 </footer>
 
 <!-- Sticky Button -->
 <div class="sticky-btn" id="stickyBtn">
-  <button onclick="openModal()">🛒 Order Now — ₹599 (Cash on Delivery)</button>
+  <button id="stickyBtnInner" onclick="openModal()">🛒 Order Now — ₹599 (Cash on Delivery)</button>
 </div>
 
 <!-- Order Modal -->
@@ -346,16 +330,13 @@ footer{background:var(--dark);color:#fff;padding:40px 20px;text-align:center}
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body" id="modalBody">
-      <!-- Order Summary -->
       <div class="order-summary">
         <h4>📦 Order Summary</h4>
-        <div class="summary-row"><span>Product</span><span>Sugar Control Powder</span></div>
-        <div class="summary-row"><span>Quantity</span><span id="sumQty">1</span></div>
-        <div class="summary-row"><span>Price per unit</span><span>₹599</span></div>
+        <div class="summary-row"><span>Product</span><span id="sumProduct">Sugar Control Powder</span></div>
+        <div class="summary-row"><span>Quantity</span><span id="sumQty">1 Pack</span></div>
+        <div class="summary-row"><span>Price per unit</span><span id="sumUnitPrice">₹599</span></div>
         <div class="summary-total"><span>Total Amount</span><span id="sumTotal">₹599</span></div>
       </div>
-
-      <!-- Form -->
       <div class="form-group">
         <label>Full Name *</label>
         <input type="text" id="fname" placeholder="Ramesh Sharma" />
@@ -395,7 +376,6 @@ footer{background:var(--dark);color:#fff;padding:40px 20px;text-align:center}
         <label>Full Address *</label>
         <input type="text" id="faddress" placeholder="House No, Street, Area, Landmark" />
       </div>
-
       <button class="submit-btn" id="submitBtn" onclick="submitOrder()">
         ✅ Confirm Order — Cash on Delivery
       </button>
@@ -406,7 +386,143 @@ footer{background:var(--dark);color:#fff;padding:40px 20px;text-align:center}
 <script>
 const API_BASE = 'https://vadikart.onrender.com';
 
-// Meta Pixel
+// ── PRODUCT DATA (loaded from backend) ─────────────────────────────
+let productData = {
+  name:        'Sugar Control Powder',
+  price:       599,
+  mrp:         1299,
+  images:      [],
+  productId:   'vk-scp-001',
+  product:     'sugar-control-powder',
+  benefits:    [],
+  howToUse:    ''
+};
+
+// ── GALLERY STATE ───────────────────────────────────────────────────
+let galleryIndex = 0;
+let galleryImages = [];
+
+function buildGallery(images) {
+  galleryImages = images.filter(Boolean);
+  const track = document.getElementById('galleryTrack');
+  const dots  = document.getElementById('galleryDots');
+  const prev  = document.getElementById('galleryPrev');
+  const next  = document.getElementById('galleryNext');
+
+  if (!galleryImages.length) {
+    // No images — show placeholder emoji
+    track.innerHTML = `<div class="gallery-slide"><div class="gallery-placeholder">🌿</div></div>`;
+    dots.innerHTML = '';
+    prev.classList.add('hide');
+    next.classList.add('hide');
+    return;
+  }
+
+  track.innerHTML = galleryImages.map((src, i) =>
+    `<div class="gallery-slide" id="gslide${i}">
+       <img src="${src}" alt="Product image ${i+1}" onerror="this.parentElement.innerHTML='<div class=\\'gallery-placeholder\\'>🌿</div>'"/>
+     </div>`
+  ).join('');
+
+  dots.innerHTML = galleryImages.length > 1
+    ? galleryImages.map((_, i) => `<button class="gallery-dot${i===0?' active':''}" onclick="galleryGoTo(${i})"></button>`).join('')
+    : '';
+
+  prev.classList.toggle('hide', galleryImages.length <= 1);
+  next.classList.toggle('hide', galleryImages.length <= 1);
+
+  galleryIndex = 0;
+  renderGallery();
+
+  // Touch swipe support
+  let touchStartX = 0;
+  track.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  track.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 40) galleryMove(dx < 0 ? 1 : -1);
+  }, { passive: true });
+}
+
+function galleryMove(dir) {
+  if (!galleryImages.length) return;
+  galleryIndex = (galleryIndex + dir + galleryImages.length) % galleryImages.length;
+  renderGallery();
+}
+
+function galleryGoTo(idx) {
+  galleryIndex = idx;
+  renderGallery();
+}
+
+function renderGallery() {
+  const slides = document.querySelectorAll('.gallery-slide');
+  slides.forEach((s, i) => {
+    s.style.transform = `translateX(${(i - galleryIndex) * 100}%)`;
+  });
+  // Re-position all slides using CSS translate via JS offsetting
+  const track = document.getElementById('galleryTrack');
+  track.style.transform = `translateX(-${galleryIndex * 100}%)`;
+  // Update dots
+  document.querySelectorAll('.gallery-dot').forEach((d, i) => {
+    d.classList.toggle('active', i === galleryIndex);
+  });
+  // Update arrows visibility
+  const prev = document.getElementById('galleryPrev');
+  const next = document.getElementById('galleryNext');
+  if (galleryImages.length > 1) {
+    prev.classList.remove('hide');
+    next.classList.remove('hide');
+  }
+}
+
+// ── LOAD PRODUCT FROM BACKEND ───────────────────────────────────────
+async function loadProduct() {
+  try {
+    const r = await fetch(API_BASE + '/api/products');
+    const d = await r.json();
+    if (d.success && d.products && d.products.length) {
+      const p = d.products[0]; // use first active product
+
+      productData.name      = p.name      || productData.name;
+      productData.price     = p.price     || productData.price;
+      productData.mrp       = p.mrp       || productData.mrp;
+      productData.images    = p.images    || [];
+      productData.benefits  = p.benefits  || [];
+      productData.howToUse  = p.howToUse  || '';
+      productData.productId = p._id       || productData.productId;
+      productData.product   = p.name.toLowerCase().replace(/\s+/g,'-');
+
+      // Update hero price & discount
+      const discount = Math.round((1 - productData.price / productData.mrp) * 100);
+      document.getElementById('heroPrice').textContent     = '₹' + productData.price;
+      document.getElementById('heroMrp').textContent       = '₹' + productData.mrp.toLocaleString('en-IN');
+      document.getElementById('heroDiscount').textContent  = discount + '% OFF';
+      document.getElementById('heroTitle').innerHTML       = p.name.replace(/(\w+)\s+(\w+)/, '$1 <span>$2</span>');
+      document.getElementById('sumProduct').textContent    = p.name;
+      document.getElementById('sumUnitPrice').textContent  = '₹' + productData.price;
+      document.getElementById('sumTotal').textContent      = '₹' + productData.price;
+
+      // Update sticky button
+      document.getElementById('stickyBtnInner').textContent =
+        '🛒 Order Now — ₹' + productData.price + ' (Cash on Delivery)';
+
+      // Update benefits if available
+      if (productData.benefits.length) {
+        const icons = ['🩸','💪','🍬','🫀','⚡','✅','🌿','🔬'];
+        const grid = document.getElementById('benefitsGrid');
+        grid.innerHTML = productData.benefits.map((b, i) =>
+          `<div class="benefit-card"><div class="benefit-icon">${icons[i%icons.length]}</div><h4>${b}</h4></div>`
+        ).join('');
+      }
+    }
+  } catch(e) {
+    // Silently fall back to hardcoded defaults if API is down
+  }
+  // Always build gallery (uses fetched images or empty = placeholder)
+  buildGallery(productData.images);
+}
+
+// ── META PIXEL ──────────────────────────────────────────────────────
 async function loadPixel() {
   try {
     const r = await fetch(API_BASE + '/api/meta');
@@ -418,20 +534,19 @@ async function loadPixel() {
     }
   } catch(e){}
 }
-loadPixel();
 
-// Sticky button
+// ── STICKY SCROLL ───────────────────────────────────────────────────
 window.addEventListener('scroll', () => {
   document.getElementById('stickyBtn').style.display = window.scrollY > 400 ? 'block' : 'none';
 });
 
-// FAQ toggle
+// ── FAQ ─────────────────────────────────────────────────────────────
 function toggleFaq(el) {
   el.classList.toggle('open');
   el.nextElementSibling.classList.toggle('open');
 }
 
-// Modal
+// ── MODAL ───────────────────────────────────────────────────────────
 function openModal() {
   document.getElementById('modalOverlay').classList.add('active');
   if (window.fbq) fbq('track', 'InitiateCheckout');
@@ -439,29 +554,33 @@ function openModal() {
 function closeModal() {
   document.getElementById('modalOverlay').classList.remove('active');
 }
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+});
 
-// Update summary
+// ── ORDER SUMMARY (live price from backend) ─────────────────────────
 function updateSummary() {
   const qty = parseInt(document.getElementById('fqty').value);
-  const total = qty * 599;
-  document.getElementById('sumQty').textContent = qty + ' Pack' + (qty > 1 ? 's' : '');
-  document.getElementById('sumTotal').textContent = '₹' + total;
+  const total = qty * productData.price;
+  document.getElementById('sumQty').textContent   = qty + ' Pack' + (qty > 1 ? 's' : '');
+  document.getElementById('sumTotal').textContent = '₹' + total.toLocaleString('en-IN');
 }
 
-// Pincode
+// ── PINCODE LOOKUP ──────────────────────────────────────────────────
 async function fetchPincode() {
   const pin = document.getElementById('fpincode').value;
   const info = document.getElementById('pincodeInfo');
   if (pin.length !== 6) return;
   info.className = 'pincode-loading';
   info.style.display = 'block';
+  info.style.color = '';
   info.textContent = 'Fetching location...';
   try {
     const r = await fetch(API_BASE + '/api/pincode/' + pin);
     const d = await r.json();
     if (d[0]?.Status === 'Success') {
       const po = d[0].PostOffice[0];
-      document.getElementById('fcity').value = po.District;
+      document.getElementById('fcity').value  = po.District;
       document.getElementById('fstate').value = po.State;
       info.className = 'pincode-info';
       info.textContent = '✅ ' + po.District + ', ' + po.State;
@@ -471,27 +590,26 @@ async function fetchPincode() {
       info.textContent = '❌ Invalid pincode';
     }
   } catch(e) {
-    info.textContent = '';
     info.style.display = 'none';
   }
 }
 
-// Submit order
+// ── SUBMIT ORDER ────────────────────────────────────────────────────
 async function submitOrder() {
-  const name = document.getElementById('fname').value.trim();
-  const phone = document.getElementById('fphone').value.trim();
+  const name    = document.getElementById('fname').value.trim();
+  const phone   = document.getElementById('fphone').value.trim();
   const pincode = document.getElementById('fpincode').value.trim();
-  const city = document.getElementById('fcity').value.trim();
-  const state = document.getElementById('fstate').value.trim();
+  const city    = document.getElementById('fcity').value.trim();
+  const state   = document.getElementById('fstate').value.trim();
   const address = document.getElementById('faddress').value.trim();
-  const qty = parseInt(document.getElementById('fqty').value);
+  const qty     = parseInt(document.getElementById('fqty').value);
 
-  if (!name) return alert('Please enter your full name');
-  if (!/^\d{10}$/.test(phone)) return alert('Please enter a valid 10-digit phone number');
-  if (!pincode || pincode.length !== 6) return alert('Please enter a valid 6-digit pincode');
-  if (!address) return alert('Please enter your full address');
+  if (!name)                         return alert('Please enter your full name');
+  if (!/^\d{10}$/.test(phone))       return alert('Please enter a valid 10-digit phone number');
+  if (!pincode || pincode.length!==6) return alert('Please enter a valid 6-digit pincode');
+  if (!address)                      return alert('Please enter your full address');
 
-  const total = qty * 599;
+  const total = qty * productData.price;
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
   btn.textContent = 'Placing Order...';
@@ -502,11 +620,11 @@ async function submitOrder() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name, phone, address, pincode, city, state,
-        product: 'sugar-control-powder',
-        productName: 'Sugar Control Powder',
-        productId: 'vk-scp-001',
-        quantity: qty,
-        price: 599,
+        product:     productData.product,
+        productName: productData.name,
+        productId:   productData.productId,
+        quantity:    qty,
+        price:       productData.price,
         totalAmount: total
       })
     });
@@ -535,10 +653,9 @@ async function submitOrder() {
   }
 }
 
-// Close modal on overlay click
-document.getElementById('modalOverlay').addEventListener('click', (e) => {
-  if (e.target === document.getElementById('modalOverlay')) closeModal();
-});
+// ── INIT ────────────────────────────────────────────────────────────
+loadProduct();
+loadPixel();
 </script>
 </body>
 </html>

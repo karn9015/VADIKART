@@ -33,6 +33,7 @@ body{font-family:'Hind',sans-serif;background:var(--bg);color:var(--text);displa
 .login-box input{width:100%;padding:14px 16px;border:2px solid var(--border);border-radius:10px;font-size:15px;margin-bottom:14px;outline:none;font-family:'Hind',sans-serif;transition:.2s}
 .login-box input:focus{border-color:var(--green)}
 .login-btn{width:100%;background:var(--green);color:#fff;border:none;padding:14px;border-radius:10px;font-size:17px;font-weight:700;font-family:'Baloo 2',cursive;cursor:pointer}
+.login-btn:disabled{opacity:.6;cursor:not-allowed}
 .login-err{color:var(--red);font-size:13px;margin-top:8px}
 
 /* SIDEBAR */
@@ -130,7 +131,7 @@ tr:hover td{background:#fafafa}
 .bar-label{font-size:10px;color:var(--muted);white-space:nowrap;transform:rotate(-30deg);transform-origin:top right}
 
 /* PRODUCTS */
-.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
 .product-card{background:var(--card);border-radius:14px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.06);border:2px solid transparent;transition:.2s}
 .product-card:hover{border-color:var(--green)}
 .product-title{font-weight:700;font-size:15px;margin-bottom:6px}
@@ -138,11 +139,24 @@ tr:hover td{background:#fafafa}
 .product-mrp{font-size:13px;text-decoration:line-through;color:var(--muted)}
 .product-actions{display:flex;gap:8px;margin-top:14px}
 
+/* PRODUCT IMAGE THUMBNAILS */
+.product-thumbs{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}
+.product-thumb{width:60px;height:60px;border-radius:8px;object-fit:cover;border:2px solid var(--border)}
+.product-thumb-placeholder{width:60px;height:60px;border-radius:8px;background:var(--bg);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--muted)}
+
+/* IMAGE INPUTS */
+.img-inputs{display:flex;flex-direction:column;gap:8px}
+.img-input-row{display:flex;align-items:center;gap:8px}
+.img-input-row input{flex:1;padding:8px 12px;border:2px solid var(--border);border-radius:8px;font-size:13px;font-family:'Hind',sans-serif;outline:none}
+.img-input-row input:focus{border-color:var(--green)}
+.img-preview{width:36px;height:36px;border-radius:6px;object-fit:cover;border:1px solid var(--border);display:none}
+.img-label{font-size:11px;color:var(--muted);font-weight:600;width:50px;flex-shrink:0}
+
 /* MODAL */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;backdrop-filter:blur(4px)}
 .modal-overlay.active{display:flex;align-items:center;justify-content:center;padding:16px}
-.modal{background:#fff;border-radius:16px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto}
-.modal-head{background:var(--sidebar);color:#fff;padding:18px 24px;border-radius:16px 16px 0 0;display:flex;justify-content:space-between;align-items:center}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:560px;max-height:92vh;overflow-y:auto}
+.modal-head{background:var(--sidebar);color:#fff;padding:18px 24px;border-radius:16px 16px 0 0;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
 .modal-head h2{font-size:18px;font-family:'Baloo 2',cursive}
 .modal-close{background:none;border:none;color:#fff;font-size:22px;cursor:pointer}
 .modal-body{padding:24px}
@@ -179,7 +193,7 @@ tr:hover td{background:#fafafa}
 .page-btn:hover,.page-btn.active{background:var(--green);color:#fff;border-color:var(--green)}
 .page-info{font-size:12px;color:var(--muted);margin-left:auto}
 
-/* HAMBURGER (mobile) */
+/* HAMBURGER */
 .hamburger{display:none;background:none;border:none;font-size:24px;cursor:pointer;position:fixed;top:14px;left:14px;z-index:300;color:#fff;background:var(--sidebar);padding:6px 10px;border-radius:8px}
 
 @media(max-width:768px){
@@ -199,38 +213,33 @@ tr:hover td{background:#fafafa}
 <!-- LOGIN -->
 <div id="loginScreen">
   <div class="login-box">
-    <div class="login-logo">Vaidyakart</div>
+    <div class="login-logo">🌿 Vaidyakart</div>
     <h2>Admin Panel</h2>
-    <input type="text" id="loginUser" placeholder="Username" value="admin"/>
-    <input type="password" id="loginPass" placeholder="Password" />
-    <button class="login-btn" onclick="doLogin()">🔐 Login</button>
+    <input type="text" id="loginUser" placeholder="Username" value="admin" autocomplete="username"/>
+    <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">🔐 Login</button>
     <div class="login-err" id="loginErr"></div>
   </div>
 </div>
 
 <!-- APP -->
 <div id="app">
-  <!-- Hamburger -->
   <button class="hamburger" onclick="toggleSidebar()">☰</button>
 
-  <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
     <div class="sidebar-logo">Vaidya<span>kart</span></div>
     <nav class="sidebar-nav">
-      <div class="nav-item active" onclick="showTab('dashboard')"><span class="nav-icon">📊</span> Dashboard</div>
-      <div class="nav-item" onclick="showTab('orders')"><span class="nav-icon">📦</span> Orders</div>
-      <div class="nav-item" onclick="showTab('products')"><span class="nav-icon">🧪</span> Products</div>
-      <div class="nav-item" onclick="showTab('settings')"><span class="nav-icon">⚙️</span> Settings</div>
+      <div class="nav-item active" onclick="showTab('dashboard',this)"><span class="nav-icon">📊</span> Dashboard</div>
+      <div class="nav-item" onclick="showTab('orders',this)"><span class="nav-icon">📦</span> Orders</div>
+      <div class="nav-item" onclick="showTab('products',this)"><span class="nav-icon">🧪</span> Products</div>
+      <div class="nav-item" onclick="showTab('settings',this)"><span class="nav-icon">⚙️</span> Settings</div>
     </nav>
     <div class="sidebar-footer">
       <button class="logout-btn" onclick="logout()">🚪 Logout</button>
     </div>
   </div>
 
-  <!-- Main -->
   <div class="main-content">
-
-    <!-- TOP BAR -->
     <div class="top-bar">
       <h1 id="pageTitle">📊 Dashboard</h1>
       <div class="top-bar-right">
@@ -241,7 +250,6 @@ tr:hover td{background:#fafafa}
 
     <!-- DASHBOARD TAB -->
     <div class="tab-content active" id="tab-dashboard">
-      <!-- Date Filter -->
       <div class="filter-bar">
         <label>Date Range:</label>
         <input type="date" id="dashFrom" />
@@ -253,7 +261,6 @@ tr:hover td{background:#fafafa}
         <button class="btn btn-gray" onclick="setLast7()">Last 7 Days</button>
         <button class="btn btn-gray" onclick="setThisMonth()">This Month</button>
       </div>
-
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-label">Total Orders</div><div class="stat-val" id="s-total">—</div><div class="stat-sub">All time</div></div>
         <div class="stat-card gold"><div class="stat-label">New Orders</div><div class="stat-val" id="s-new">—</div><div class="stat-sub">Pending action</div></div>
@@ -263,21 +270,17 @@ tr:hover td{background:#fafafa}
         <div class="stat-card red"><div class="stat-label">Cancelled</div><div class="stat-val" id="s-cancelled">—</div></div>
         <div class="stat-card" style="border-left-color:#16a34a"><div class="stat-label">Revenue (₹)</div><div class="stat-val" id="s-revenue">—</div><div class="stat-sub">Excl. cancelled</div></div>
       </div>
-
-      <!-- Bar Chart -->
       <div class="chart-wrap">
         <h3>📈 Daily Orders</h3>
         <div class="bar-chart" id="barChart"></div>
       </div>
-
-      <!-- Latest Orders -->
       <div class="table-wrap">
         <div class="table-header"><h3>🕐 Latest Orders</h3></div>
         <div style="overflow-x:auto">
-        <table>
-          <thead><tr><th>Order ID</th><th>Name</th><th>Phone</th><th>City</th><th>Qty</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
-          <tbody id="latestOrdersBody"></tbody>
-        </table>
+          <table>
+            <thead><tr><th>Order ID</th><th>Name</th><th>Phone</th><th>City</th><th>Qty</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody id="latestOrdersBody"></tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -305,8 +308,6 @@ tr:hover td{background:#fafafa}
         </select>
         <button class="btn btn-green" onclick="exportCSV()">⬇️ Export CSV</button>
       </div>
-
-      <!-- Bulk Action Bar -->
       <div class="bulk-bar" id="bulkBar">
         <span id="bulkCount">0 selected</span>
         <select id="bulkStatus">
@@ -319,7 +320,6 @@ tr:hover td{background:#fafafa}
         <button class="btn btn-gold" onclick="applyBulkStatus()">Apply Bulk</button>
         <button class="btn btn-gray" onclick="clearSelection()">Clear Selection</button>
       </div>
-
       <div class="table-wrap">
         <div class="table-header">
           <h3>📦 Orders</h3>
@@ -329,16 +329,15 @@ tr:hover td{background:#fafafa}
           </label>
         </div>
         <div style="overflow-x:auto">
-        <table>
-          <thead><tr>
-            <th><input type="checkbox" id="selectAllTop" onchange="toggleSelectAll()"/></th>
-            <th>#</th><th>Name</th><th>Phone</th><th>City</th>
-            <th>Product</th><th>Qty</th><th>Amount</th>
-            <th>Addr Score</th>
-            <th>Status</th><th>Date</th><th>Actions</th>
-          </tr></thead>
-          <tbody id="ordersBody"></tbody>
-        </table>
+          <table>
+            <thead><tr>
+              <th><input type="checkbox" id="selectAllTop" onchange="toggleSelectAll()"/></th>
+              <th>#</th><th>Name</th><th>Phone</th><th>City</th>
+              <th>Product</th><th>Qty</th><th>Amount</th>
+              <th>Addr Score</th><th>Status</th><th>Date</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="ordersBody"></tbody>
+          </table>
         </div>
         <div class="pagination" id="pagination"></div>
       </div>
@@ -354,7 +353,6 @@ tr:hover td{background:#fafafa}
 
     <!-- SETTINGS TAB -->
     <div class="tab-content" id="tab-settings">
-
       <div class="settings-section">
         <h3>🔗 Backend URL</h3>
         <p>Enter your deployed Render backend URL. This connects the admin panel and frontend to your server.</p>
@@ -362,31 +360,24 @@ tr:hover td{background:#fafafa}
         <button class="btn btn-green" onclick="saveBackendUrl()">💾 Save & Connect</button>
         <p style="margin-top:10px;font-size:12px;color:var(--muted)">Current: <strong id="currentBackendDisplay">Not set</strong></p>
       </div>
-
       <div class="settings-section">
         <h3>📊 Meta Pixel</h3>
         <p>Enter your Facebook Pixel ID. Events tracked: PageView, InitiateCheckout, Purchase</p>
         <input type="text" id="pixelInput" placeholder="Enter Meta Pixel ID (e.g. 1234567890)" />
         <button class="btn btn-blue" onclick="savePixel()">💾 Save Pixel</button>
+        <div style="margin-top:10px;font-size:13px;color:var(--muted)">Active Pixel: <strong id="activePixel">None</strong></div>
         <div class="event-pills" style="margin-top:12px">
           <div class="event-pill">📄 PageView</div>
           <div class="event-pill">🛒 InitiateCheckout</div>
           <div class="event-pill">💰 Purchase</div>
         </div>
-        <p style="margin-top:10px;font-size:12px;color:var(--muted)">Active Pixel: <strong id="activePixel">None</strong></p>
       </div>
-
-      <div class="settings-section">
-        <h3>🔐 Admin Credentials</h3>
-        <p>Username and password are set in your server <code>.env</code> file (ADMIN_USER, ADMIN_PASS). To change, update the environment variables on Render.</p>
-      </div>
-
     </div>
 
-  </div>
-</div>
+  </div><!-- /main-content -->
+</div><!-- /app -->
 
-<!-- Product Modal -->
+<!-- PRODUCT MODAL -->
 <div class="modal-overlay" id="productModal">
   <div class="modal">
     <div class="modal-head">
@@ -404,7 +395,30 @@ tr:hover td{background:#fafafa}
         <div class="form-group"><label>Stock</label><input id="pStock" type="number" placeholder="100"/></div>
       </div>
       <div class="form-group"><label>Description</label><textarea id="pDesc" rows="3" placeholder="Product description..."></textarea></div>
-      <div class="form-group"><label>Image URL</label><input id="pImg" placeholder="https://..."/></div>
+
+      <!-- ── MULTI-IMAGE INPUTS ── -->
+      <div class="form-group">
+        <label>Product Images (up to 3 — customers can swipe/shuffle)</label>
+        <div class="img-inputs">
+          <div class="img-input-row">
+            <span class="img-label">Image 1</span>
+            <input id="pImg1" placeholder="https://... (main image)" oninput="previewImg(this,'prev1')"/>
+            <img id="prev1" class="img-preview" src="" alt="preview"/>
+          </div>
+          <div class="img-input-row">
+            <span class="img-label">Image 2</span>
+            <input id="pImg2" placeholder="https://... (optional)" oninput="previewImg(this,'prev2')"/>
+            <img id="prev2" class="img-preview" src="" alt="preview"/>
+          </div>
+          <div class="img-input-row">
+            <span class="img-label">Image 3</span>
+            <input id="pImg3" placeholder="https://... (optional)" oninput="previewImg(this,'prev3')"/>
+            <img id="prev3" class="img-preview" src="" alt="preview"/>
+          </div>
+        </div>
+        <p style="font-size:11px;color:var(--muted);margin-top:6px">💡 Paste any public image URL. Customers will see a sliding gallery on the product page.</p>
+      </div>
+
       <div class="form-group"><label>Benefits (comma separated)</label><input id="pBenefits" placeholder="Benefit 1, Benefit 2, ..."/></div>
       <div class="form-group"><label>Ingredients</label><input id="pIngr" placeholder="Karela, Jamun, Methi..."/></div>
       <div class="form-group"><label>How to Use</label><textarea id="pHtu" rows="2" placeholder="Mix 1 tsp in warm water..."></textarea></div>
@@ -421,7 +435,8 @@ tr:hover td{background:#fafafa}
 
 <script>
 // ── CONFIG ──────────────────────────────────────────────────────────────
-let API = localStorage.getItem('vk_backend_url') || 'REPLACE_WITH_BACKEND_URL';
+// FIX 1: Default to actual backend URL instead of placeholder
+let API = localStorage.getItem('vk_backend_url') || 'https://vadikart.onrender.com';
 let token = sessionStorage.getItem('vk_token') || '';
 let soundEnabled = localStorage.getItem('vk_sound') !== 'off';
 let currentPage = 1;
@@ -430,14 +445,33 @@ let lastOrderCount = null;
 let pollInterval = null;
 let editingProductId = null;
 
+// ── FIX 2: Auth headers helper — used on every protected API call ────
+function authHeaders(extra = {}) {
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer ' + token,
+    ...extra
+  };
+}
+
 // ── LOGIN ────────────────────────────────────────────────────────────────
 async function doLogin() {
   const username = document.getElementById('loginUser').value.trim();
   const password = document.getElementById('loginPass').value.trim();
   if (!username || !password) return showErr('Please enter credentials');
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true;
+  btn.textContent = 'Logging in...';
   try {
+    // FIX 3: Check if API is still placeholder before calling
+    if (!API || API === 'REPLACE_WITH_BACKEND_URL') {
+      showErr('Backend URL not set. Use Settings tab to configure.');
+      btn.disabled = false; btn.textContent = '🔐 Login';
+      return;
+    }
     const r = await fetch(API + '/api/admin/login', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
     });
     const d = await r.json();
@@ -447,25 +481,30 @@ async function doLogin() {
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('app').style.display = 'flex';
       initApp();
-    } else showErr(d.error || 'Invalid credentials');
-  } catch(e) { showErr('Cannot reach server. Check Backend URL in Settings.'); }
+    } else {
+      showErr(d.error || 'Invalid credentials');
+    }
+  } catch(e) {
+    showErr('Cannot reach server. Check backend URL in Settings (bottom of page).');
+  }
+  btn.disabled = false; btn.textContent = '🔐 Login';
 }
 function showErr(msg) { document.getElementById('loginErr').textContent = '⚠️ ' + msg; }
 
-// Auto login if token exists
 window.onload = () => {
-  if (token) {
+  if (token && API) {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('app').style.display = 'flex';
     initApp();
   }
-  // Load saved backend URL into settings input
-  document.getElementById('backendUrlInput').value = API !== 'REPLACE_WITH_BACKEND_URL' ? API : '';
-  document.getElementById('currentBackendDisplay').textContent = API !== 'REPLACE_WITH_BACKEND_URL' ? API : 'Not set';
+  document.getElementById('backendUrlInput').value = API;
+  document.getElementById('currentBackendDisplay').textContent = API;
   updateSoundBtn();
 };
 
 function logout() {
+  // Tell server to invalidate token
+  fetch(API + '/api/admin/logout', { method: 'POST', headers: authHeaders() }).catch(()=>{});
   sessionStorage.removeItem('vk_token');
   token = '';
   clearInterval(pollInterval);
@@ -485,12 +524,23 @@ async function checkBackendStatus() {
   const el = document.getElementById('backendIndicator');
   try {
     const r = await fetch(API + '/');
-    if (r.ok) { el.textContent = '🟢 Backend Connected'; el.style.background = 'rgba(34,197,94,.1)'; el.style.color = '#16a34a'; }
-    else { el.textContent = '🔴 Backend Error'; el.style.background = 'rgba(239,68,68,.1)'; el.style.color = '#ef4444'; }
-  } catch(e) { el.textContent = '🔴 Backend Offline'; el.style.background = 'rgba(239,68,68,.1)'; el.style.color = '#ef4444'; }
+    if (r.ok) {
+      el.textContent = '🟢 Backend Connected';
+      el.style.background = 'rgba(34,197,94,.1)';
+      el.style.color = '#16a34a';
+    } else {
+      el.textContent = '🔴 Backend Error';
+      el.style.background = 'rgba(239,68,68,.1)';
+      el.style.color = '#ef4444';
+    }
+  } catch(e) {
+    el.textContent = '🔴 Backend Offline';
+    el.style.background = 'rgba(239,68,68,.1)';
+    el.style.color = '#ef4444';
+  }
 }
 
-// ── SOUND & POLLING ───────────────────────────────────────────────────────
+// ── SOUND & POLLING ───────────────────────────────────────────────────
 function toggleSound() {
   soundEnabled = !soundEnabled;
   localStorage.setItem('vk_sound', soundEnabled ? 'on' : 'off');
@@ -506,30 +556,30 @@ function playOrderSound() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     [523, 659, 784].forEach((freq, i) => {
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
+      const o = ctx.createOscillator(); const g = ctx.createGain();
       o.connect(g); g.connect(ctx.destination);
-      o.frequency.value = freq;
-      o.type = 'sine';
+      o.frequency.value = freq; o.type = 'sine';
       g.gain.setValueAtTime(0.3, ctx.currentTime + i*0.15);
       g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i*0.15 + 0.3);
-      o.start(ctx.currentTime + i*0.15);
-      o.stop(ctx.currentTime + i*0.15 + 0.3);
+      o.start(ctx.currentTime + i*0.15); o.stop(ctx.currentTime + i*0.15 + 0.3);
     });
   } catch(e){}
 }
 function startPolling() {
+  if (pollInterval) clearInterval(pollInterval);
   pollInterval = setInterval(async () => {
     try {
-      const r = await fetch(API + '/api/stats');
+      // FIX: stats also needs auth header
+      const r = await fetch(API + '/api/stats', { headers: authHeaders() });
       const d = await r.json();
       if (d.success) {
         if (lastOrderCount !== null && d.newOrders > lastOrderCount) {
           if (soundEnabled) playOrderSound();
           toast('🛒 New order received!', 'success');
-          const curTab = document.querySelector('.nav-item.active')?.textContent?.trim();
-          if (curTab?.includes('Dashboard')) loadDashboard();
-          if (curTab?.includes('Orders')) loadOrders();
+          const active = document.querySelector('.nav-item.active');
+          const curTab = active?.textContent?.trim() || '';
+          if (curTab.includes('Dashboard')) loadDashboard();
+          if (curTab.includes('Orders')) loadOrders();
         }
         lastOrderCount = d.newOrders;
       }
@@ -537,12 +587,12 @@ function startPolling() {
   }, 30000);
 }
 
-// ── TABS ─────────────────────────────────────────────────────────────────
-function showTab(tab) {
+// ── TABS ─────────────────────────────────────────────────────────────
+function showTab(tab, el) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
-  event.currentTarget?.classList.add('active');
+  if (el) el.classList.add('active');
   const titles = { dashboard:'📊 Dashboard', orders:'📦 Orders', products:'🧪 Products', settings:'⚙️ Settings' };
   document.getElementById('pageTitle').textContent = titles[tab];
   if (tab === 'dashboard') loadDashboard();
@@ -553,114 +603,89 @@ function showTab(tab) {
 }
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
-// ── DASHBOARD ─────────────────────────────────────────────────────────────
-function setToday() {
-  const t = new Date().toISOString().slice(0,10);
-  document.getElementById('dashFrom').value = t;
-  document.getElementById('dashTo').value = t;
-  loadDashboard();
-}
-function setLast7() {
-  const to = new Date(), from = new Date();
-  from.setDate(from.getDate() - 6);
-  document.getElementById('dashFrom').value = from.toISOString().slice(0,10);
-  document.getElementById('dashTo').value = to.toISOString().slice(0,10);
-  loadDashboard();
-}
-function setThisMonth() {
-  const now = new Date();
-  const from = new Date(now.getFullYear(), now.getMonth(), 1);
-  document.getElementById('dashFrom').value = from.toISOString().slice(0,10);
-  document.getElementById('dashTo').value = now.toISOString().slice(0,10);
-  loadDashboard();
-}
-function clearDashFilter() {
-  document.getElementById('dashFrom').value = '';
-  document.getElementById('dashTo').value = '';
-  loadDashboard();
-}
+// ── DASHBOARD ─────────────────────────────────────────────────────────
+function clearDashFilter() { document.getElementById('dashFrom').value=''; document.getElementById('dashTo').value=''; loadDashboard(); }
+function setToday() { const t=new Date().toISOString().split('T')[0]; document.getElementById('dashFrom').value=t; document.getElementById('dashTo').value=t; loadDashboard(); }
+function setLast7() { const t=new Date(); const f=new Date(t-6*86400000); document.getElementById('dashFrom').value=f.toISOString().split('T')[0]; document.getElementById('dashTo').value=t.toISOString().split('T')[0]; loadDashboard(); }
+function setThisMonth() { const t=new Date(); document.getElementById('dashFrom').value=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-01`; document.getElementById('dashTo').value=t.toISOString().split('T')[0]; loadDashboard(); }
 
 async function loadDashboard() {
   const from = document.getElementById('dashFrom').value;
-  const to = document.getElementById('dashTo').value;
+  const to   = document.getElementById('dashTo').value;
   let url = API + '/api/stats';
   const params = [];
   if (from) params.push('from='+from);
-  if (to) params.push('to='+to);
+  if (to)   params.push('to='+to);
   if (params.length) url += '?' + params.join('&');
 
   try {
-    const r = await fetch(url);
+    // FIX: send auth header
+    const r = await fetch(url, { headers: authHeaders() });
     const d = await r.json();
-    if (!d.success) return;
-    document.getElementById('s-total').textContent = d.totalOrders;
-    document.getElementById('s-new').textContent = d.newOrders;
+    if (!d.success) { toast('Could not load dashboard', 'error'); return; }
+    document.getElementById('s-total').textContent     = d.totalOrders;
+    document.getElementById('s-new').textContent       = d.newOrders;
     document.getElementById('s-confirmed').textContent = d.confirmedOrders;
-    document.getElementById('s-shipped').textContent = d.shippedOrders;
-    document.getElementById('s-delivered').textContent = d.deliveredOrders || 0;
-    document.getElementById('s-cancelled').textContent = d.cancelledOrders || 0;
-    document.getElementById('s-revenue').textContent = '₹' + (d.revenue||0).toLocaleString('en-IN');
-    if (lastOrderCount === null) lastOrderCount = d.newOrders;
-    renderChart(d.chartData || []);
-  } catch(e){}
+    document.getElementById('s-shipped').textContent   = d.shippedOrders;
+    document.getElementById('s-delivered').textContent = d.deliveredOrders;
+    document.getElementById('s-cancelled').textContent = d.cancelledOrders;
+    document.getElementById('s-revenue').textContent   = '₹' + (d.revenue||0).toLocaleString('en-IN');
 
-  // Latest orders
-  try {
-    let oUrl = API + '/api/orders?limit=5&page=1';
-    if (from) oUrl += '&from='+from;
-    if (to) oUrl += '&to='+to;
-    const or = await fetch(oUrl);
-    const od = await or.json();
-    if (od.success) {
-      const tb = document.getElementById('latestOrdersBody');
-      tb.innerHTML = od.orders.map(o => `
-        <tr>
-          <td style="font-size:11px;color:var(--muted);font-family:monospace">${o._id.slice(-8)}</td>
-          <td class="td-name">${o.name}</td>
-          <td class="td-phone">${o.phone}</td>
-          <td>${o.city||'—'}</td>
-          <td>${o.quantity}</td>
-          <td style="font-weight:700">₹${o.totalAmount}</td>
-          <td><span class="badge badge-${o.status}">${o.status}</span></td>
-          <td style="font-size:11px;color:var(--muted)">${fmtDate(o.createdAt)}</td>
-        </tr>`).join('');
+    // Chart
+    const chart = document.getElementById('barChart');
+    if (d.chartData && d.chartData.length) {
+      const maxC = Math.max(...d.chartData.map(x=>x.count));
+      chart.innerHTML = d.chartData.map(d => {
+        const h = maxC > 0 ? Math.max(4, Math.round((d.count/maxC)*100)) : 4;
+        const label = d._id.slice(5);
+        return `<div class="bar-col" title="${d._id}: ${d.count} orders, ₹${d.revenue}">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:2px">${d.count}</div>
+          <div class="bar" style="height:${h}px"></div>
+          <div class="bar-label">${label}</div>
+        </div>`;
+      }).join('');
+    } else {
+      chart.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:20px">No data for selected range</div>';
     }
-  } catch(e){}
-}
 
-function renderChart(data) {
-  const wrap = document.getElementById('barChart');
-  if (!data.length) { wrap.innerHTML = '<p style="color:var(--muted);font-size:13px">No data for selected range</p>'; return; }
-  const max = Math.max(...data.map(d => d.count), 1);
-  wrap.innerHTML = data.map(d => {
-    const h = Math.max(4, Math.round((d.count / max) * 110));
-    const label = d._id.slice(5); // MM-DD
-    return `<div class="bar-col" title="${d._id}: ${d.count} orders, ₹${d.revenue}">
-      <div style="font-size:10px;color:var(--muted);margin-bottom:2px">${d.count}</div>
-      <div class="bar" style="height:${h}px"></div>
-      <div class="bar-label">${label}</div>
-    </div>`;
-  }).join('');
+    // Latest orders table
+    const tbody = document.getElementById('latestOrdersBody');
+    if (d.latestOrders && d.latestOrders.length) {
+      tbody.innerHTML = d.latestOrders.map(o => `<tr>
+        <td style="font-size:11px;font-family:monospace;color:var(--muted)">${o._id.slice(-8)}</td>
+        <td class="td-name">${o.name}</td>
+        <td class="td-phone">${o.phone}</td>
+        <td>${o.city||'—'}</td>
+        <td>${o.quantity}</td>
+        <td style="font-weight:700">₹${o.totalAmount}</td>
+        <td><span class="badge badge-${o.status}">${o.status}</span></td>
+        <td style="font-size:11px;color:var(--muted)">${fmtDate(o.createdAt)}</td>
+      </tr>`).join('');
+    } else {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted)">No orders yet</td></tr>';
+    }
+  } catch(e) { toast('Failed to load dashboard', 'error'); }
 }
 
 // ── ORDERS ────────────────────────────────────────────────────────────────
 async function loadOrders() {
   const status = document.getElementById('statusFilter').value;
   const search = document.getElementById('searchFilter').value;
-  const from = document.getElementById('ordersFrom').value;
-  const to = document.getElementById('ordersTo').value;
-  const limit = document.getElementById('rowsPerPage').value;
+  const from   = document.getElementById('ordersFrom').value;
+  const to     = document.getElementById('ordersTo').value;
+  const limit  = document.getElementById('rowsPerPage').value;
 
   let url = `${API}/api/orders?page=${currentPage}&limit=${limit}`;
   if (status !== 'all') url += '&status='+status;
   if (search) url += '&search='+encodeURIComponent(search);
   if (from) url += '&from='+from;
-  if (to) url += '&to='+to;
+  if (to)   url += '&to='+to;
 
   try {
-    const r = await fetch(url);
+    // FIX: send auth header
+    const r = await fetch(url, { headers: authHeaders() });
     const d = await r.json();
-    if (!d.success) return;
+    if (!d.success) { toast('Could not load orders (check login)', 'error'); return; }
     renderOrders(d.orders);
     renderPagination(d.total, d.pages, d.page, limit);
   } catch(e) { toast('Failed to load orders', 'error'); }
@@ -668,31 +693,32 @@ async function loadOrders() {
 
 function renderOrders(orders) {
   const tb = document.getElementById('ordersBody');
-  if (!orders.length) { tb.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:30px;color:var(--muted)">No orders found</td></tr>'; return; }
-  tb.innerHTML = orders.map((o, i) => {
+  if (!orders.length) {
+    tb.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:30px;color:var(--muted)">No orders found</td></tr>';
+    return;
+  }
+  tb.innerHTML = orders.map((o) => {
     const checked = selectedIds.has(o._id) ? 'checked' : '';
     const score = o.addressScore || 0;
     const scoreClass = score >= 80 ? 'high' : score >= 50 ? 'mid' : 'low';
     const scoreEmoji = score >= 80 ? '✅' : score >= 50 ? '⚠️' : '❌';
     return `<tr>
-      <td><input type="checkbox" ${checked} onchange="toggleSelect('${o._id}',this)"/></td>
+      <td><input type="checkbox" data-id="${o._id}" ${checked} onchange="toggleSelect('${o._id}',this)"/></td>
       <td style="font-size:11px;color:var(--muted);font-family:monospace">${o._id.slice(-8)}</td>
-      <td class="td-name">${o.name}</td>
+      <td class="td-name">${escHtml(o.name)}</td>
       <td class="td-phone">${o.phone}</td>
-      <td>${o.city||'—'}</td>
-      <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${o.productName||''}">${o.productName||'—'}</td>
+      <td>${escHtml(o.city||'—')}</td>
+      <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escHtml(o.productName||'')}">${escHtml(o.productName||'—')}</td>
       <td style="text-align:center">${o.quantity}</td>
       <td style="font-weight:700;white-space:nowrap">₹${o.totalAmount}</td>
       <td><span class="addr-score ${scoreClass}">${scoreEmoji} ${score}%</span></td>
       <td>
         <select class="status-select" onchange="updateStatus('${o._id}',this.value)">
-          ${['new','confirmed','shipped','delivered','cancelled'].map(s => `<option value="${s}" ${o.status===s?'selected':''}>${s}</option>`).join('')}
+          ${['new','confirmed','shipped','delivered','cancelled'].map(s=>`<option value="${s}" ${o.status===s?'selected':''}>${s}</option>`).join('')}
         </select>
       </td>
       <td style="font-size:11px;color:var(--muted);white-space:nowrap">${fmtDate(o.createdAt)}</td>
-      <td>
-        <button class="btn btn-red" style="padding:5px 10px;font-size:12px" onclick="deleteOrder('${o._id}')">🗑</button>
-      </td>
+      <td><button class="btn btn-red" style="padding:5px 10px;font-size:12px" onclick="deleteOrder('${o._id}')">🗑</button></td>
     </tr>`;
   }).join('');
 }
@@ -716,24 +742,20 @@ function toggleSelect(id, cb) {
 function toggleSelectAll() {
   const checked = document.getElementById('selectAllTop').checked || document.getElementById('selectAll').checked;
   document.querySelectorAll('#ordersBody input[type=checkbox]').forEach(cb => {
-    const row = cb.closest('tr');
-    const orderId = row ? getOrderIdFromRow(row) : null;
-    if (orderId) { cb.checked = checked; if (checked) selectedIds.add(orderId); else selectedIds.delete(orderId); }
-    else { cb.checked = checked; }
+    const id = cb.dataset.id;
+    if (id) { cb.checked = checked; if (checked) selectedIds.add(id); else selectedIds.delete(id); }
   });
   updateBulkBar();
 }
-function getOrderIdFromRow(row) {
-  const cb = row.querySelector('input[type=checkbox]');
-  if (cb?.onchange) { const m = cb.getAttribute('onchange')?.match(/'([a-f0-9]{24})'/); return m?.[1]; }
-  return null;
+function clearSelection() {
+  selectedIds.clear();
+  document.querySelectorAll('#ordersBody input[type=checkbox]').forEach(cb => cb.checked = false);
+  updateBulkBar();
 }
-function clearSelection() { selectedIds.clear(); document.querySelectorAll('#ordersBody input[type=checkbox]').forEach(cb => cb.checked = false); updateBulkBar(); }
 function updateBulkBar() {
-  const bar = document.getElementById('bulkBar');
   const n = selectedIds.size;
   document.getElementById('bulkCount').textContent = n + ' order' + (n!==1?'s':'') + ' selected';
-  bar.classList.toggle('show', n > 0);
+  document.getElementById('bulkBar').classList.toggle('show', n > 0);
 }
 async function applyBulkStatus() {
   const status = document.getElementById('bulkStatus').value;
@@ -742,7 +764,8 @@ async function applyBulkStatus() {
   if (!confirm(`Mark ${selectedIds.size} orders as "${status}"?`)) return;
   try {
     const r = await fetch(API + '/api/orders/bulk/status', {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      method: 'PUT',
+      headers: authHeaders(),
       body: JSON.stringify({ ids: [...selectedIds], status })
     });
     const d = await r.json();
@@ -754,79 +777,118 @@ async function applyBulkStatus() {
 async function updateStatus(id, status) {
   try {
     await fetch(API + '/api/orders/' + id + '/status', {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      method: 'PUT',
+      headers: authHeaders(),
       body: JSON.stringify({ status })
     });
-    toast('Status updated to ' + status, 'success');
+    toast('Status updated → ' + status, 'success');
   } catch(e) { toast('Update failed', 'error'); }
 }
 
 async function deleteOrder(id) {
-  if (!confirm('Delete this order?')) return;
+  if (!confirm('Delete this order? This cannot be undone.')) return;
   try {
-    await fetch(API + '/api/orders/' + id, { method: 'DELETE' });
+    await fetch(API + '/api/orders/' + id, { method: 'DELETE', headers: authHeaders() });
     toast('Order deleted', 'info');
     loadOrders();
   } catch(e) { toast('Delete failed', 'error'); }
 }
 
 function exportCSV() {
-  const from = document.getElementById('ordersFrom').value;
-  const to = document.getElementById('ordersTo').value;
+  const from   = document.getElementById('ordersFrom').value;
+  const to     = document.getElementById('ordersTo').value;
   const status = document.getElementById('statusFilter').value;
-  let url = API + '/api/orders/export/csv?';
-  if (from) url += 'from='+from+'&';
-  if (to) url += 'to='+to+'&';
-  if (status !== 'all') url += 'status='+status;
+  let url = API + '/api/orders/export/csv?token=' + encodeURIComponent(token);
+  if (from) url += '&from='+from;
+  if (to)   url += '&to='+to;
+  if (status !== 'all') url += '&status='+status;
   window.open(url, '_blank');
 }
 
-// ── PRODUCTS ─────────────────────────────────────────────────────────────
+// ── PRODUCTS ─────────────────────────────────────────────────────────
 async function loadProducts() {
   try {
-    const r = await fetch(API + '/api/products/all');
+    // FIX: send auth header
+    const r = await fetch(API + '/api/products/all', { headers: authHeaders() });
     const d = await r.json();
-    if (!d.success) return;
+    if (!d.success) { toast('Could not load products', 'error'); return; }
     const grid = document.getElementById('productsGrid');
-    grid.innerHTML = d.products.map(p => `
-      <div class="product-card">
-        <div class="product-title">${p.name}</div>
+    if (!d.products.length) {
+      grid.innerHTML = '<div style="color:var(--muted);padding:20px">No products yet. Click "+ Add Product" to create one.</div>';
+      return;
+    }
+    grid.innerHTML = d.products.map(p => {
+      const imgs = (p.images || []).filter(Boolean);
+      const thumbsHtml = imgs.length
+        ? imgs.map(img => `<img class="product-thumb" src="${escHtml(img)}" alt="img" onerror="this.style.display='none'">`).join('')
+        : `<div class="product-thumb-placeholder">🌿</div>`;
+      return `<div class="product-card">
+        <div class="product-thumbs">${thumbsHtml}</div>
+        <div class="product-title">${escHtml(p.name)}</div>
         <div style="margin-bottom:6px">
           <span class="product-price">₹${p.price}</span>
           <span class="product-mrp"> ₹${p.mrp}</span>
+          <span style="font-size:12px;margin-left:8px">${imgs.length} img${imgs.length!==1?'s':''}</span>
         </div>
         <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Stock: ${p.stock} | ${p.active?'<span style="color:var(--green)">Active</span>':'<span style="color:var(--red)">Hidden</span>'}</div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:10px">${(p.description||'').slice(0,80)}...</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:10px">${escHtml((p.description||'').slice(0,80))}${p.description && p.description.length>80?'...':''}</div>
         <div class="product-actions">
           <button class="btn btn-blue" style="font-size:12px;padding:7px 14px" onclick="openProductModal('${p._id}')">✏️ Edit</button>
           <button class="btn btn-red" style="font-size:12px;padding:7px 14px" onclick="deleteProduct('${p._id}')">🗑 Delete</button>
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   } catch(e) { toast('Failed to load products', 'error'); }
+}
+
+function previewImg(input, previewId) {
+  const prev = document.getElementById(previewId);
+  const url = input.value.trim();
+  if (url) {
+    prev.src = url;
+    prev.style.display = 'block';
+    prev.onerror = () => { prev.style.display = 'none'; };
+  } else {
+    prev.style.display = 'none';
+  }
 }
 
 function openProductModal(id) {
   editingProductId = id || null;
   document.getElementById('productModalTitle').textContent = id ? 'Edit Product' : 'Add Product';
-  if (!id) {
-    ['pId','pName','pPrice','pMrp','pStock','pDesc','pImg','pBenefits','pIngr','pHtu'].forEach(i => document.getElementById(i).value = '');
-    document.getElementById('pActive').value = 'true';
-  } else {
-    fetch(API + '/api/products/all').then(r => r.json()).then(d => {
-      const p = d.products.find(x => x._id === id);
-      if (!p) return;
-      document.getElementById('pId').value = p._id;
-      document.getElementById('pName').value = p.name;
-      document.getElementById('pPrice').value = p.price;
-      document.getElementById('pMrp').value = p.mrp;
-      document.getElementById('pStock').value = p.stock;
-      document.getElementById('pDesc').value = p.description||'';
-      document.getElementById('pImg').value = (p.images||[])[0]||'';
-      document.getElementById('pBenefits').value = (p.benefits||[]).join(', ');
-      document.getElementById('pIngr').value = p.ingredients||'';
-      document.getElementById('pHtu').value = p.howToUse||'';
-      document.getElementById('pActive').value = p.active ? 'true' : 'false';
-    });
+  // Clear
+  ['pId','pName','pPrice','pMrp','pStock','pDesc','pImg1','pImg2','pImg3','pBenefits','pIngr','pHtu'].forEach(i => {
+    const el = document.getElementById(i);
+    if (el) el.value = '';
+  });
+  document.getElementById('pActive').value = 'true';
+  ['prev1','prev2','prev3'].forEach(id => { const el = document.getElementById(id); el.src=''; el.style.display='none'; });
+
+  if (id) {
+    fetch(API + '/api/products/all', { headers: authHeaders() })
+      .then(r => r.json())
+      .then(d => {
+        const p = d.products.find(x => x._id === id);
+        if (!p) return;
+        document.getElementById('pId').value    = p._id;
+        document.getElementById('pName').value  = p.name || '';
+        document.getElementById('pPrice').value = p.price || '';
+        document.getElementById('pMrp').value   = p.mrp || '';
+        document.getElementById('pStock').value = p.stock || '';
+        document.getElementById('pDesc').value  = p.description || '';
+        document.getElementById('pBenefits').value = (p.benefits||[]).join(', ');
+        document.getElementById('pIngr').value  = p.ingredients || '';
+        document.getElementById('pHtu').value   = p.howToUse || '';
+        document.getElementById('pActive').value = p.active ? 'true' : 'false';
+        // Fill image inputs
+        const imgs = p.images || [];
+        ['pImg1','pImg2','pImg3'].forEach((imgId, idx) => {
+          const val = imgs[idx] || '';
+          const el = document.getElementById(imgId);
+          el.value = val;
+          if (val) previewImg(el, 'prev'+(idx+1));
+        });
+      });
   }
   document.getElementById('productModal').classList.add('active');
 }
@@ -834,41 +896,47 @@ function closeProductModal() { document.getElementById('productModal').classList
 
 async function saveProduct() {
   const id = document.getElementById('pId').value;
+  const images = [
+    document.getElementById('pImg1').value.trim(),
+    document.getElementById('pImg2').value.trim(),
+    document.getElementById('pImg3').value.trim()
+  ].filter(Boolean);
+
   const payload = {
-    name: document.getElementById('pName').value,
-    price: parseFloat(document.getElementById('pPrice').value),
-    mrp: parseFloat(document.getElementById('pMrp').value),
-    stock: parseInt(document.getElementById('pStock').value)||100,
+    name:        document.getElementById('pName').value,
+    price:       parseFloat(document.getElementById('pPrice').value),
+    mrp:         parseFloat(document.getElementById('pMrp').value),
+    stock:       parseInt(document.getElementById('pStock').value)||100,
     description: document.getElementById('pDesc').value,
-    images: [document.getElementById('pImg').value].filter(Boolean),
-    benefits: document.getElementById('pBenefits').value.split(',').map(s=>s.trim()).filter(Boolean),
+    images,
+    benefits:    document.getElementById('pBenefits').value.split(',').map(s=>s.trim()).filter(Boolean),
     ingredients: document.getElementById('pIngr').value,
-    howToUse: document.getElementById('pHtu').value,
-    active: document.getElementById('pActive').value === 'true'
+    howToUse:    document.getElementById('pHtu').value,
+    active:      document.getElementById('pActive').value === 'true'
   };
   try {
-    const url = id ? API+'/api/products/'+id : API+'/api/products';
+    const url    = id ? API+'/api/products/'+id : API+'/api/products';
     const method = id ? 'PUT' : 'POST';
-    const r = await fetch(url, { method, headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+    const r = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(payload) });
     const d = await r.json();
-    if (d.success) { toast(id?'Product updated':'Product created','success'); closeProductModal(); loadProducts(); }
-    else toast('Save failed','error');
-  } catch(e) { toast('Network error','error'); }
+    if (d.success) { toast(id?'✅ Product updated':'✅ Product created','success'); closeProductModal(); loadProducts(); }
+    else toast('Save failed: ' + (d.error||''), 'error');
+  } catch(e) { toast('Network error', 'error'); }
 }
 
 async function deleteProduct(id) {
-  if (!confirm('Delete this product?')) return;
+  if (!confirm('Delete this product? This cannot be undone.')) return;
   try {
-    await fetch(API+'/api/products/'+id, { method:'DELETE' });
-    toast('Product deleted','info');
+    await fetch(API+'/api/products/'+id, { method:'DELETE', headers: authHeaders() });
+    toast('Product deleted', 'info');
     loadProducts();
-  } catch(e) { toast('Delete failed','error'); }
+  } catch(e) { toast('Delete failed', 'error'); }
 }
 
 // ── SETTINGS ─────────────────────────────────────────────────────────────
 async function loadSettings() {
   try {
-    const r = await fetch(API + '/api/settings');
+    const r = await fetch(API + '/api/settings', { headers: authHeaders() });
     const d = await r.json();
     if (d.success) {
       if (d.metaPixel) {
@@ -877,11 +945,8 @@ async function loadSettings() {
       }
     }
   } catch(e){}
-  const url = localStorage.getItem('vk_backend_url');
-  if (url) {
-    document.getElementById('backendUrlInput').value = url;
-    document.getElementById('currentBackendDisplay').textContent = url;
-  }
+  document.getElementById('backendUrlInput').value = API;
+  document.getElementById('currentBackendDisplay').textContent = API;
 }
 
 function saveBackendUrl() {
@@ -900,12 +965,12 @@ async function savePixel() {
   const pid = document.getElementById('pixelInput').value.trim();
   try {
     const r = await fetch(API + '/api/meta', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
+      method: 'POST',
+      headers: authHeaders(),
       body: JSON.stringify({ metaPixel: pid })
     });
     const d = await r.json();
     if (d.success) {
-      localStorage.setItem('sweatbelt_pixel_id', pid);
       document.getElementById('activePixel').textContent = pid || 'None';
       toast('Meta Pixel saved ✅', 'success');
     } else toast('Save failed', 'error');
@@ -917,7 +982,10 @@ function fmtDate(dt) {
   if (!dt) return '—';
   return new Date(dt).toLocaleString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
 }
-
+function escHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 function toast(msg, type='success') {
   const wrap = document.getElementById('toastWrap');
   const el = document.createElement('div');
