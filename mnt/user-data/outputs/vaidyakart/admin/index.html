@@ -227,6 +227,10 @@ tr:hover td{background:#fafafa}
     <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
     <button class="login-btn" id="loginBtn" onclick="doLogin()">🔐 Login</button>
     <div class="login-err" id="loginErr"></div>
+    <div style="margin-top:12px;font-size:12px;color:#aaa;text-align:left">
+      Backend: <span id="loginApiDisplay" style="font-weight:700;color:#555;word-break:break-all"></span>
+      <span id="loginServerStatus" style="display:block;margin-top:4px;font-style:italic"></span>
+    </div>
   </div>
 </div>
 
@@ -464,37 +468,67 @@ function authHeaders(extra = {}) {
 }
 
 // ── LOGIN ────────────────────────────────────────────────────────────────
+async function fetchWithTimeout(url, options = {}, timeoutMs = 20000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const r = await fetch(url, { ...options, signal: controller.signal });
+    clearTimeout(id);
+    return r;
+  } catch(e) {
+    clearTimeout(id);
+    throw e;
+  }
+}
+
 async function doLogin() {
   const username = document.getElementById('loginUser').value.trim();
   const password = document.getElementById('loginPass').value.trim();
   if (!username || !password) return showErr('Please enter credentials');
   const btn = document.getElementById('loginBtn');
   btn.disabled = true;
-  btn.textContent = 'Logging in...';
-  try {
-    // FIX 3: Check if API is still placeholder before calling
-    if (!API || API === 'REPLACE_WITH_BACKEND_URL') {
-      showErr('Backend URL not set. Use Settings tab to configure.');
-      btn.disabled = false; btn.textContent = '🔐 Login';
-      return;
+
+  if (!API || API === 'REPLACE_WITH_BACKEND_URL') {
+    showErr('Backend URL not set. Go to Settings tab to configure.');
+    btn.disabled = false; btn.textContent = '🔐 Login';
+    return;
+  }
+
+  // Try up to 2 attempts (handles Render cold-start wakeup)
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    btn.textContent = attempt === 1 ? 'Connecting...' : '⏳ Waking server (may take ~30s)...';
+    try {
+      const r = await fetchWithTimeout(API + '/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      }, attempt === 1 ? 12000 : 40000);
+
+      const d = await r.json();
+      if (d.success) {
+        token = d.token;
+        sessionStorage.setItem('vk_token', token);
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('app').style.display = 'flex';
+        initApp();
+        return;
+      } else {
+        showErr(d.error || 'Invalid credentials');
+        btn.disabled = false; btn.textContent = '🔐 Login';
+        return;
+      }
+    } catch(e) {
+      if (attempt < 2) {
+        showErr('⏳ Server is waking up... retrying automatically.');
+        await new Promise(res => setTimeout(res, 3000));
+      } else {
+        if (e.name === 'AbortError') {
+          showErr('Server timed out. It may still be starting — wait 30s and try again.');
+        } else {
+          showErr('Cannot reach server. Check your Backend URL in Settings.');
+        }
+      }
     }
-    const r = await fetch(API + '/api/admin/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
-    });
-    const d = await r.json();
-    if (d.success) {
-      token = d.token;
-      sessionStorage.setItem('vk_token', token);
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('app').style.display = 'flex';
-      initApp();
-    } else {
-      showErr(d.error || 'Invalid credentials');
-    }
-  } catch(e) {
-    showErr('Cannot reach server. Check backend URL in Settings (bottom of page).');
   }
   btn.disabled = false; btn.textContent = '🔐 Login';
 }
@@ -505,6 +539,16 @@ window.onload = () => {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('app').style.display = 'flex';
     initApp();
+  } else {
+    const disp = document.getElementById('loginApiDisplay');
+    const status = document.getElementById('loginServerStatus');
+    if (disp) disp.textContent = API || 'Not set';
+    if (status) status.textContent = 'Checking server...';
+    fetch(API + '/').then(r => {
+      if (status) status.textContent = r.ok ? '🟢 Server is online' : '🔴 Server returned an error';
+    }).catch(() => {
+      if (status) status.textContent = '🔴 Offline or waking up — try logging in anyway';
+    });
   }
   document.getElementById('backendUrlInput').value = API;
   document.getElementById('currentBackendDisplay').textContent = API;
