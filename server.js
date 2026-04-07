@@ -29,6 +29,7 @@ const orderSchema = new mongoose.Schema({
   totalAmount: Number,
   addressScore: { type: Number, default: 0 },
   status: { type: String, enum: ['new','confirmed','shipped','delivered','cancelled'], default: 'new' },
+  shippedAt: { type: Date },
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -37,7 +38,7 @@ const productSchema = new mongoose.Schema({
   description: String,
   price: Number,
   mrp: Number,
-  images: [String],      // supports 1–3 images
+  images: [String],
   benefits: [String],
   ingredients: String,
   howToUse: String,
@@ -51,15 +52,26 @@ const settingSchema = new mongoose.Schema({
   backendUrl: String
 });
 
-// ─── TOKEN STORE (in-memory, simple) ────────────────────────────────
-// For production consider JWT, but this keeps it dependency-free
+const testimonialSchema = new mongoose.Schema({
+  name: String,
+  location: String,
+  text: String,
+  rating: { type: Number, default: 5 },
+  videoUrl: String,
+  avatarLetter: String,
+  active: { type: Boolean, default: true },
+  createdAt: { type: Date, default: Date.now }
+});
+
+// ─── TOKEN STORE ─────────────────────────────────────────────────────
 const activeTokens = new Set();
 
-const Order   = mongoose.model('Order',   orderSchema);
-const Product = mongoose.model('Product', productSchema);
-const Setting = mongoose.model('Setting', settingSchema);
+const Order       = mongoose.model('Order',       orderSchema);
+const Product     = mongoose.model('Product',     productSchema);
+const Setting     = mongoose.model('Setting',     settingSchema);
+const Testimonial = mongoose.model('Testimonial', testimonialSchema);
 
-// ─── ADMIN AUTH MIDDLEWARE ───────────────────────────────────────────
+// ─── ADMIN AUTH MIDDLEWARE ────────────────────────────────────────────
 function requireAdmin(req, res, next) {
   const auth = req.headers['authorization'] || '';
   const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
@@ -69,7 +81,7 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-// ─── HELPER: address score ───────────────────────────────────────────
+// ─── HELPER: address score ────────────────────────────────────────────
 function calcAddressScore(addr, pincode, city, state) {
   let score = 0;
   if (addr && addr.trim().length > 10) score += 40;
@@ -80,15 +92,30 @@ function calcAddressScore(addr, pincode, city, state) {
   return score;
 }
 
-// ─── PUBLIC ROUTES ───────────────────────────────────────────────────
+// ─── PUBLIC ROUTES ────────────────────────────────────────────────────
 
-// Health check
 app.get('/', (req, res) => res.json({ status: 'ok', brand: 'Vaidyakart' }));
 
-// Place order (public — customers submit from frontend)
+// Place order — with duplicate check (same phone within 10 minutes)
 app.post('/api/orders', async (req, res) => {
   try {
     const { name, phone, address, pincode, city, state, product, productName, productId, quantity, size, price, totalAmount } = req.body;
+
+    // Validate required fields
+    if (!name || !name.trim()) return res.json({ success: false, error: 'Name is required' });
+    if (!phone || !/^\d{10}$/.test(phone.trim())) return res.json({ success: false, error: 'Valid 10-digit phone is required' });
+    if (!address || !address.trim()) return res.json({ success: false, error: 'Address is required' });
+    if (!pincode || !/^\d{6}$/.test(pincode.trim())) return res.json({ success: false, error: 'Valid 6-digit pincode is required' });
+    if (!city || !city.trim()) return res.json({ success: false, error: 'City is required — valid pincode needed' });
+    if (!state || !state.trim()) return res.json({ success: false, error: 'State is required — valid pincode needed' });
+
+    // Duplicate order check — same phone in last 10 minutes
+    const tenMinAgo = new Date(Date.now() - 10 * 60 * 1000);
+    const dup = await Order.findOne({ phone: phone.trim(), createdAt: { $gte: tenMinAgo } });
+    if (dup) {
+      return res.json({ success: false, duplicate: true, error: 'Aapka order pehle se place ho chuka hai! Thoda wait karein ya customer care se contact karein.' });
+    }
+
     const addressScore = calcAddressScore(address, pincode, city, state);
     const order = new Order({ name, phone, address, pincode, city, state, product, productName, productId, quantity: quantity||1, size, price, totalAmount, addressScore });
     await order.save();
@@ -96,7 +123,7 @@ app.post('/api/orders', async (req, res) => {
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
-// Public products (active only — used by frontend landing page)
+// Public products (active only)
 app.get('/api/products', async (req, res) => {
   try {
     const products = await Product.find({ active: true });
@@ -104,7 +131,7 @@ app.get('/api/products', async (req, res) => {
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
-// Pincode lookup (public)
+// Pincode lookup
 app.get('/api/pincode/:pin', async (req, res) => {
   try {
     const resp = await fetch(`https://api.postalpincode.in/pincode/${req.params.pin}`);
@@ -121,10 +148,16 @@ app.get('/api/meta', async (req, res) => {
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
-// ─── ADMIN LOGIN ──────────────────────────────────────────────────────
+// Public testimonials
+app.get('/api/testimonials', async (req, res) => {
+  try {
+    const testimonials = await Testimonial.find({ active: true }).sort({ createdAt: -1 });
+    res.json({ success: true, testimonials });
+  } catch(e) { res.json({ success: false, error: e.message }); }
+});
 
-// ─── LIVE VISITOR TRACKING ───────────────────────────────────────────
-const visitorPings = new Map(); // sessionId -> { lastPing, page }
+// ─── LIVE VISITOR TRACKING ────────────────────────────────────────────
+const visitorPings = new Map();
 
 app.post('/api/visitors/ping', (req, res) => {
   const { sessionId, page } = req.body;
@@ -141,15 +174,12 @@ app.get('/api/visitors/live', requireAdmin, (req, res) => {
   res.json({ success: true, count: visitorPings.size });
 });
 
+// ─── ADMIN LOGIN ──────────────────────────────────────────────────────
 app.post('/api/admin/login', (req, res) => {
   const { username, password } = req.body;
-  if (
-    username === process.env.ADMIN_USER &&
-    password === process.env.ADMIN_PASS
-  ) {
+  if (username === process.env.ADMIN_USER && password === process.env.ADMIN_PASS) {
     const token = 'vk_admin_' + Date.now() + '_' + Math.random().toString(36).slice(2);
     activeTokens.add(token);
-    // Auto-expire token after 24 hours
     setTimeout(() => activeTokens.delete(token), 24 * 60 * 60 * 1000);
     res.json({ success: true, token });
   } else {
@@ -157,16 +187,15 @@ app.post('/api/admin/login', (req, res) => {
   }
 });
 
-// Admin logout
 app.post('/api/admin/logout', requireAdmin, (req, res) => {
   const token = req.headers['authorization'].slice(7);
   activeTokens.delete(token);
   res.json({ success: true });
 });
 
-// ─── ADMIN-PROTECTED ROUTES ───────────────────────────────────────────
+// ─── ADMIN ROUTES ─────────────────────────────────────────────────────
 
-// All orders (admin)
+// All orders
 app.get('/api/orders', requireAdmin, async (req, res) => {
   try {
     const { status, search, from, to, page = 1, limit = 50 } = req.query;
@@ -189,14 +218,16 @@ app.get('/api/orders', requireAdmin, async (req, res) => {
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
-// Bulk status update — MUST be BEFORE /api/orders/:id routes to avoid Express matching 'bulk' as an :id
+// Bulk status update
 app.put('/api/orders/bulk/status', requireAdmin, async (req, res) => {
   try {
     const { ids, status } = req.body;
     if (!ids || !ids.length) return res.json({ success: false, error: 'No IDs provided' });
     const validStatuses = ['new','confirmed','shipped','delivered','cancelled'];
     if (!validStatuses.includes(status)) return res.json({ success: false, error: 'Invalid status' });
-    const result = await Order.updateMany({ _id: { $in: ids } }, { $set: { status } });
+    const updateData = { status };
+    if (status === 'shipped') updateData.shippedAt = new Date();
+    const result = await Order.updateMany({ _id: { $in: ids } }, { $set: updateData });
     res.json({ success: true, updated: result.modifiedCount });
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
@@ -205,7 +236,9 @@ app.put('/api/orders/bulk/status', requireAdmin, async (req, res) => {
 app.put('/api/orders/:id/status', requireAdmin, async (req, res) => {
   try {
     const { status } = req.body;
-    await Order.findByIdAndUpdate(req.params.id, { status });
+    const updateData = { status };
+    if (status === 'shipped') updateData.shippedAt = new Date();
+    await Order.findByIdAndUpdate(req.params.id, updateData);
     res.json({ success: true });
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
@@ -218,23 +251,29 @@ app.delete('/api/orders/:id', requireAdmin, async (req, res) => {
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
-// Export CSV
+// Export CSV — current page only via ids param
 app.get('/api/orders/export/csv', requireAdmin, async (req, res) => {
   try {
-    const { from, to, status } = req.query;
+    const { from, to, status, ids } = req.query;
     let query = {};
-    if (status && status !== 'all') query.status = status;
-    if (from || to) {
-      query.createdAt = {};
-      if (from) query.createdAt.$gte = new Date(from);
-      if (to) { const d = new Date(to); d.setHours(23,59,59,999); query.createdAt.$lte = d; }
+    if (ids) {
+      const idList = ids.split(',').filter(Boolean);
+      query._id = { $in: idList };
+    } else {
+      if (status && status !== 'all') query.status = status;
+      if (from || to) {
+        query.createdAt = {};
+        if (from) query.createdAt.$gte = new Date(from);
+        if (to) { const d = new Date(to); d.setHours(23,59,59,999); query.createdAt.$lte = d; }
+      }
     }
     const orders = await Order.find(query).sort({ createdAt: -1 });
-    const headers = ['Order ID','Name','Phone','Address','Pincode','City','State','Product','Size','Qty','Amount','Address Score','Status','Date'];
+    const headers = ['Order ID','Name','Phone','Address','Pincode','City','State','Product','Qty','Amount','Address Score','Status','Shipped At','Date'];
     const rows = orders.map(o => [
       o._id, o.name, o.phone, `"${(o.address||'').replace(/"/g,'""')}"`,
-      o.pincode, o.city, o.state, o.productName, o.size||'', o.quantity,
+      o.pincode, o.city, o.state, o.productName, o.quantity,
       o.totalAmount, o.addressScore||0, o.status,
+      o.shippedAt ? new Date(o.shippedAt).toLocaleString('en-IN') : '',
       new Date(o.createdAt).toLocaleString('en-IN')
     ]);
     const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
@@ -244,7 +283,7 @@ app.get('/api/orders/export/csv', requireAdmin, async (req, res) => {
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
-// All products (admin — includes inactive)
+// Products (admin)
 app.get('/api/products/all', requireAdmin, async (req, res) => {
   try {
     const products = await Product.find();
@@ -252,7 +291,6 @@ app.get('/api/products/all', requireAdmin, async (req, res) => {
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
-// Create product
 app.post('/api/products', requireAdmin, async (req, res) => {
   try {
     const p = new Product(req.body);
@@ -261,7 +299,6 @@ app.post('/api/products', requireAdmin, async (req, res) => {
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
-// Update product
 app.put('/api/products/:id', requireAdmin, async (req, res) => {
   try {
     const p = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -269,7 +306,6 @@ app.put('/api/products/:id', requireAdmin, async (req, res) => {
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
-// Delete product
 app.delete('/api/products/:id', requireAdmin, async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.id);
@@ -277,7 +313,7 @@ app.delete('/api/products/:id', requireAdmin, async (req, res) => {
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
-// Stats (admin)
+// Stats with avg order time
 app.get('/api/stats', requireAdmin, async (req, res) => {
   try {
     const { from, to } = req.query;
@@ -304,11 +340,30 @@ app.get('/api/stats', requireAdmin, async (req, res) => {
       { $sort: { _id: 1 } },
       { $limit: 30 }
     ]);
-    res.json({ success: true, totalOrders, newOrders, confirmedOrders, shippedOrders, deliveredOrders, cancelledOrders, revenue, chartData, latestOrders });
+
+    // Average time between consecutive orders
+    let avgOrderIntervalMin = null;
+    const recentOrders = await Order.find(dateQuery).sort({ createdAt: 1 }).select('createdAt').limit(200);
+    if (recentOrders.length >= 2) {
+      let totalMs = 0;
+      for (let i = 1; i < recentOrders.length; i++) {
+        totalMs += new Date(recentOrders[i].createdAt) - new Date(recentOrders[i-1].createdAt);
+      }
+      avgOrderIntervalMin = Math.round(totalMs / (recentOrders.length - 1) / 60000);
+    }
+
+    res.json({ success: true, totalOrders, newOrders, confirmedOrders, shippedOrders, deliveredOrders, cancelledOrders, revenue, chartData, latestOrders, avgOrderIntervalMin });
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
-// Meta pixel (admin write)
+// Settings
+app.get('/api/settings', requireAdmin, async (req, res) => {
+  try {
+    const s = await Setting.findOne();
+    res.json({ success: true, metaPixel: s?.metaPixel || '', backendUrl: s?.backendUrl || '' });
+  } catch(e) { res.json({ success: false, error: e.message }); }
+});
+
 app.post('/api/meta', requireAdmin, async (req, res) => {
   try {
     const { metaPixel } = req.body;
@@ -316,14 +371,6 @@ app.post('/api/meta', requireAdmin, async (req, res) => {
     if (s) { s.metaPixel = metaPixel; await s.save(); }
     else { s = await Setting.create({ metaPixel }); }
     res.json({ success: true });
-  } catch(e) { res.json({ success: false, error: e.message }); }
-});
-
-// Settings (admin)
-app.get('/api/settings', requireAdmin, async (req, res) => {
-  try {
-    const s = await Setting.findOne();
-    res.json({ success: true, metaPixel: s?.metaPixel || '', backendUrl: s?.backendUrl || '' });
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
@@ -337,24 +384,50 @@ app.post('/api/settings', requireAdmin, async (req, res) => {
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
-// Seed default product
+// ─── TESTIMONIAL ROUTES ───────────────────────────────────────────────
+app.get('/api/testimonials/all', requireAdmin, async (req, res) => {
+  try {
+    const testimonials = await Testimonial.find().sort({ createdAt: -1 });
+    res.json({ success: true, testimonials });
+  } catch(e) { res.json({ success: false, error: e.message }); }
+});
+
+app.post('/api/testimonials', requireAdmin, async (req, res) => {
+  try {
+    const t = new Testimonial(req.body);
+    await t.save();
+    res.json({ success: true, testimonial: t });
+  } catch(e) { res.json({ success: false, error: e.message }); }
+});
+
+app.put('/api/testimonials/:id', requireAdmin, async (req, res) => {
+  try {
+    const t = await Testimonial.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json({ success: true, testimonial: t });
+  } catch(e) { res.json({ success: false, error: e.message }); }
+});
+
+app.delete('/api/testimonials/:id', requireAdmin, async (req, res) => {
+  try {
+    await Testimonial.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch(e) { res.json({ success: false, error: e.message }); }
+});
+
+// Seed
 app.post('/api/seed', async (req, res) => {
   try {
     const count = await Product.countDocuments();
     if (count === 0) {
       await Product.create({
-        name: 'Sugar Control Powder',
-        description: 'Vaidyakart Sugar Control Powder — Ayurvedic blend of 12 herbs to naturally manage blood sugar levels. Trusted by thousands across India.',
-        price: 599,
-        mrp: 1299,
-        images: [],
+        name: 'Sugar Control Powder', description: 'Vaidyakart Sugar Control Powder — Ayurvedic blend of 12 herbs.',
+        price: 599, mrp: 1299, images: [],
         benefits: ['Controls blood sugar naturally','Boosts insulin sensitivity','Reduces sugar cravings','Improves pancreatic health','No side effects — 100% Ayurvedic','Results in 4–6 weeks'],
         ingredients: 'Karela, Jamun, Methi, Giloy, Vijaysar, Neem, Amla, Gurmar, Ashwagandha, Haritaki, Bibhitaki, Amalaki',
-        howToUse: 'Mix 1 teaspoon in warm water. Drink on empty stomach every morning. Use daily for best results.',
-        stock: 200,
-        active: true
+        howToUse: 'Mix 1 teaspoon in warm water. Drink on empty stomach every morning.',
+        stock: 200, active: true
       });
-      res.json({ success: true, message: 'Seeded Sugar Control Powder' });
+      res.json({ success: true, message: 'Seeded' });
     } else {
       res.json({ success: true, message: 'Products already exist' });
     }
