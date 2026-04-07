@@ -435,4 +435,18 @@ app.post('/api/seed', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Vaidyakart server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`🚀 Vaidyakart server running on port ${PORT}`);
+
+  // ─── KEEP-ALIVE SELF-PING (prevents Render free tier sleep) ──────────
+  const SELF_URL = process.env.RENDER_EXTERNAL_URL || process.env.BACKEND_URL || `http://localhost:${PORT}`;
+  setInterval(async () => {
+    try {
+      await fetch(`${SELF_URL}/`);
+      console.log('✅ Keep-alive ping sent');
+    } catch (e) {
+      console.warn('⚠️ Keep-alive ping failed:', e.message);
+    }
+  }, 10 * 60 * 1000); // every 10 minutes
+  // ─────────────────────────────────────────────────────────────────────
+});
