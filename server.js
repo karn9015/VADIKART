@@ -122,6 +122,25 @@ app.get('/api/meta', async (req, res) => {
 });
 
 // ─── ADMIN LOGIN ──────────────────────────────────────────────────────
+
+// ─── LIVE VISITOR TRACKING ───────────────────────────────────────────
+const visitorPings = new Map(); // sessionId -> { lastPing, page }
+
+app.post('/api/visitors/ping', (req, res) => {
+  const { sessionId, page } = req.body;
+  if (!sessionId) return res.json({ success: false });
+  visitorPings.set(sessionId, { lastPing: Date.now(), page: page || '/' });
+  const now = Date.now();
+  for (const [id, v] of visitorPings) { if (now - v.lastPing > 45000) visitorPings.delete(id); }
+  res.json({ success: true });
+});
+
+app.get('/api/visitors/live', requireAdmin, (req, res) => {
+  const now = Date.now();
+  for (const [id, v] of visitorPings) { if (now - v.lastPing > 45000) visitorPings.delete(id); }
+  res.json({ success: true, count: visitorPings.size });
+});
+
 app.post('/api/admin/login', (req, res) => {
   const { username, password } = req.body;
   if (
@@ -170,21 +189,24 @@ app.get('/api/orders', requireAdmin, async (req, res) => {
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 
-// Update order status
+// Bulk status update — MUST be BEFORE /api/orders/:id routes to avoid Express matching 'bulk' as an :id
+app.put('/api/orders/bulk/status', requireAdmin, async (req, res) => {
+  try {
+    const { ids, status } = req.body;
+    if (!ids || !ids.length) return res.json({ success: false, error: 'No IDs provided' });
+    const validStatuses = ['new','confirmed','shipped','delivered','cancelled'];
+    if (!validStatuses.includes(status)) return res.json({ success: false, error: 'Invalid status' });
+    const result = await Order.updateMany({ _id: { $in: ids } }, { $set: { status } });
+    res.json({ success: true, updated: result.modifiedCount });
+  } catch(e) { res.json({ success: false, error: e.message }); }
+});
+
+// Update single order status
 app.put('/api/orders/:id/status', requireAdmin, async (req, res) => {
   try {
     const { status } = req.body;
     await Order.findByIdAndUpdate(req.params.id, { status });
     res.json({ success: true });
-  } catch(e) { res.json({ success: false, error: e.message }); }
-});
-
-// Bulk status update — MUST be before /api/orders/:id routes
-app.put('/api/orders/bulk/status', requireAdmin, async (req, res) => {
-  try {
-    const { ids, status } = req.body;
-    const result = await Order.updateMany({ _id: { $in: ids } }, { status });
-    res.json({ success: true, updated: result.modifiedCount });
   } catch(e) { res.json({ success: false, error: e.message }); }
 });
 

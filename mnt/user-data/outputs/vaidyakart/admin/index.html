@@ -62,6 +62,14 @@ body{font-family:'Hind',sans-serif;background:var(--bg);color:var(--text);displa
 
 /* CARDS */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px}
+
+/* LIVE VISITOR CARD */
+.visitor-live-card{background:linear-gradient(135deg,#0f2a1a,#1a3a25);border-radius:14px;padding:20px;border-left:4px solid #4ade80;box-shadow:0 2px 8px rgba(0,0,0,.15);color:#fff;display:flex;align-items:center;gap:14px}
+.visitor-live-dot{width:12px;height:12px;border-radius:50%;background:#4ade80;flex-shrink:0;box-shadow:0 0 0 0 rgba(74,222,128,.6);animation:liveVPulse 1.5s infinite}
+@keyframes liveVPulse{0%{box-shadow:0 0 0 0 rgba(74,222,128,.6)}70%{box-shadow:0 0 0 10px rgba(74,222,128,0)}100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}}
+.visitor-live-info .stat-label{color:rgba(255,255,255,.6);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.visitor-live-info .stat-val{font-size:28px;font-weight:800;font-family:'Baloo 2',cursive;color:#4ade80;line-height:1}
+.visitor-live-info .stat-sub{font-size:11px;color:rgba(255,255,255,.45);margin-top:3px}
 .stat-card{background:var(--card);border-radius:14px;padding:20px;border-left:4px solid var(--green);box-shadow:0 2px 8px rgba(0,0,0,.06)}
 .stat-card.gold{border-left-color:var(--gold)}
 .stat-card.blue{border-left-color:var(--blue)}
@@ -262,6 +270,7 @@ tr:hover td{background:#fafafa}
         <button class="btn btn-gray" onclick="setThisMonth()">This Month</button>
       </div>
       <div class="stats-grid">
+        <div class="visitor-live-card"><div class="visitor-live-dot"></div><div class="visitor-live-info"><div class="stat-label">🟢 Live Visitors</div><div class="stat-val" id="s-visitors">—</div><div class="stat-sub">On site right now</div></div></div>
         <div class="stat-card"><div class="stat-label">Total Orders</div><div class="stat-val" id="s-total">—</div><div class="stat-sub">All time</div></div>
         <div class="stat-card gold"><div class="stat-label">New Orders</div><div class="stat-val" id="s-new">—</div><div class="stat-sub">Pending action</div></div>
         <div class="stat-card blue"><div class="stat-label">Confirmed</div><div class="stat-val" id="s-confirmed">—</div><div class="stat-sub">Ready to ship</div></div>
@@ -567,9 +576,9 @@ function playOrderSound() {
 }
 function startPolling() {
   if (pollInterval) clearInterval(pollInterval);
+  // Poll for new orders every 30s
   pollInterval = setInterval(async () => {
     try {
-      // FIX: stats also needs auth header
       const r = await fetch(API + '/api/stats', { headers: authHeaders() });
       const d = await r.json();
       if (d.success) {
@@ -585,6 +594,20 @@ function startPolling() {
       }
     } catch(e){}
   }, 30000);
+  // Poll live visitors every 10s
+  loadLiveVisitors();
+  setInterval(loadLiveVisitors, 10000);
+}
+
+async function loadLiveVisitors() {
+  try {
+    const r = await fetch(API + '/api/visitors/live', { headers: authHeaders() });
+    const d = await r.json();
+    if (d.success) {
+      const el = document.getElementById('s-visitors');
+      if (el) el.textContent = d.count;
+    }
+  } catch(e) {}
 }
 
 // ── TABS ─────────────────────────────────────────────────────────────
@@ -609,7 +632,16 @@ function setToday() { const t=new Date().toISOString().split('T')[0]; document.g
 function setLast7() { const t=new Date(); const f=new Date(t-6*86400000); document.getElementById('dashFrom').value=f.toISOString().split('T')[0]; document.getElementById('dashTo').value=t.toISOString().split('T')[0]; loadDashboard(); }
 function setThisMonth() { const t=new Date(); document.getElementById('dashFrom').value=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-01`; document.getElementById('dashTo').value=t.toISOString().split('T')[0]; loadDashboard(); }
 
+let _dashCache = null, _dashCacheTime = 0;
 async function loadDashboard() {
+  // Use cached data if less than 60s old and no date filter changed
+  const from = document.getElementById('dashFrom')?.value || '';
+  const to = document.getElementById('dashTo')?.value || '';
+  const cacheKey = from + to;
+  if (_dashCache && (Date.now() - _dashCacheTime < 60000) && _dashCache.key === cacheKey) {
+    renderDashboard(_dashCache.data);
+    return;
+  }
   const from = document.getElementById('dashFrom').value;
   const to   = document.getElementById('dashTo').value;
   let url = API + '/api/stats';
@@ -623,6 +655,11 @@ async function loadDashboard() {
     const r = await fetch(url, { headers: authHeaders() });
     const d = await r.json();
     if (!d.success) { toast('Could not load dashboard', 'error'); return; }
+    _dashCache = { data: d, key: (document.getElementById('dashFrom')?.value||'') + (document.getElementById('dashTo')?.value||''), }; _dashCacheTime = Date.now();
+    renderDashboard(d);
+  } catch(e) { console.error('Dashboard error', e); }
+}
+function renderDashboard(d) {
     document.getElementById('s-total').textContent     = d.totalOrders;
     document.getElementById('s-new').textContent       = d.newOrders;
     document.getElementById('s-confirmed').textContent = d.confirmedOrders;
