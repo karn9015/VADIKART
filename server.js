@@ -346,9 +346,9 @@ app.listen(PORT, () => {
   // Render free tier sleeps after 15 min of inactivity.
   // This pings every 5 min to stay awake.
   // ALSO: set up a free external cron at https://cron-job.org pointing
-  // to your backend URL every 5 minutes — this is your safety net if
-  // the server was already asleep when the interval fires.
-  const SELF_URL = process.env.RENDER_EXTERNAL_URL || process.env.BACKEND_URL || `http://localhost:${PORT}`;
+  // to https://aushadhlife.onrender.com every 5 minutes — this is your
+  // safety net if the server was already asleep when the interval fires.
+  const SELF_URL = process.env.RENDER_EXTERNAL_URL || process.env.BACKEND_URL || 'https://aushadhlife.onrender.com';
   setInterval(async () => {
     try {
       await fetch(`${SELF_URL}/`);
