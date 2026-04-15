@@ -99,35 +99,7 @@ header {
 }
 .hdr-btn:hover { opacity: .88; transform: translateY(-1px); }
 
-/* ── URGENCY BAR ───────────────────────────────────────────────────── */
-.urgency {
-  background: linear-gradient(90deg, #7f1000, #b01800, #7f1000);
-  background-size: 200% 100%;
-  animation: urgencyShift 6s ease infinite;
-  color: #fff;
-  text-align: center;
-  padding: 9px 16px;
-  font-size: 13px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-@keyframes urgencyShift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
-.urgency-timer {
-  background: rgba(0,0,0,.3);
-  border: 1px solid rgba(255,255,255,.25);
-  border-radius: 6px;
-  padding: 2px 12px;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 17px;
-  font-weight: 700;
-  letter-spacing: 3px;
-  min-width: 72px;
-  text-align: center;
-}
+
 
 /* ── HERO ──────────────────────────────────────────────────────────── */
 .hero {
@@ -165,6 +137,8 @@ header {
 }
 @media(min-width: 768px) {
   .hero-inner { grid-template-columns: 1fr 1fr; gap: 40px; padding-top: 20px; }
+  .hero-content { order: 1; }
+  .gallery-col  { order: 2; }
 }
 .hero-content { padding-top: 44px; position: relative; z-index: 2; }
 .hero-eyebrow {
@@ -699,58 +673,6 @@ footer {
 }
 .footer-bottom { font-size:11.5px; color:rgba(255,255,255,.2); border-top:1px solid rgba(255,255,255,.07); padding-top:20px; line-height:1.8; }
 
-/* ── OFFER POPUP ───────────────────────────────────────────────────── */
-.offer-overlay {
-  display:none; position:fixed; inset:0;
-  background:rgba(0,0,0,.75); z-index:2000;
-  align-items:center; justify-content:center;
-  backdrop-filter:blur(8px);
-}
-.offer-overlay.show { display:flex; }
-.offer-box {
-  background: linear-gradient(145deg, #0f2218, #1a3828);
-  border: 1.5px solid rgba(196,154,42,.4);
-  border-radius: 22px;
-  padding: 40px 30px;
-  max-width: 420px;
-  width: 90%;
-  text-align:center;
-  position:relative;
-  animation: offerPop .4s cubic-bezier(.34,1.56,.64,1);
-}
-@keyframes offerPop { from{transform:scale(.7);opacity:0} to{transform:scale(1);opacity:1} }
-.offer-close {
-  position:absolute; top:14px; right:18px;
-  background:none; border:none; color:rgba(255,255,255,.4);
-  font-size:24px; cursor:pointer; transition:.2s;
-}
-.offer-close:hover { color:#fff; }
-.offer-eyebrow { font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--gold); margin-bottom:10px; }
-.offer-box h2 { font-family:'Cormorant Garamond',serif; font-size:30px; color:#fff; margin-bottom:8px; }
-.offer-box h2 em { color:var(--gold2); font-style:italic; }
-.offer-box p { color:rgba(255,255,255,.65); font-size:14px; margin-bottom:18px; line-height:1.7; }
-.offer-timer-box {
-  background:rgba(0,0,0,.3);
-  border: 1px solid rgba(196,154,42,.25);
-  border-radius:10px; padding:10px 20px;
-  display:inline-block; margin-bottom:20px;
-}
-.offer-timer {
-  font-family:'Cormorant Garamond',serif;
-  font-size:28px; font-weight:700; color:var(--red);
-  letter-spacing:4px;
-}
-.offer-timer-label { font-size:10px; color:rgba(255,255,255,.4); margin-top:2px; letter-spacing:.08em; }
-.offer-cta {
-  width:100%; background:linear-gradient(135deg,var(--gold),var(--saffron));
-  color:var(--ink); border:none; padding:15px; border-radius:10px;
-  font-size:16px; font-weight:700; cursor:pointer;
-  font-family:'DM Sans',sans-serif; transition:.2s; letter-spacing:.02em;
-}
-.offer-cta:hover { opacity:.9; transform:translateY(-1px); }
-.offer-skip { color:rgba(255,255,255,.25); font-size:12px; cursor:pointer; margin-top:12px; display:block; }
-.offer-skip:hover { color:rgba(255,255,255,.5); }
-
 /* ── ORDER MODAL ───────────────────────────────────────────────────── */
 .modal-overlay {
   display:none; position:fixed; inset:0;
@@ -861,6 +783,38 @@ footer {
 }
 .sticky-buy button:hover { opacity:.9; }
 
+/* ── MOBILE IMPROVEMENTS ───────────────────────────────────────────── */
+@media(max-width: 767px) {
+  .hero { padding: 0 16px 40px; }
+  .gallery-col { padding-top: 24px; }
+  .gallery-frame { width: min(260px, 80vw); }
+  .hero-content { padding-top: 20px; }
+  .price-now { font-size: 42px; }
+  .price-mrp { font-size: 17px; }
+  .cta-main { font-size: 15px; padding: 15px 20px; }
+  .trust-chips { gap: 6px; }
+  .chip { font-size: 11px; padding: 5px 9px; }
+  .section { padding: 44px 16px; }
+  .benefits-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .ingr-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .ingr-card { padding: 16px 10px; }
+  .how-step { min-width: 160px; padding: 24px 16px; }
+  .review-card { min-width: 280px; max-width: 100%; flex: none; width: 100%; }
+  .reviews-grid { flex-direction: column; align-items: center; }
+  .form-row2 { grid-template-columns: 1fr; }
+  .modal-body { padding: 16px; }
+  header { padding: 0 14px; }
+  .logo { font-size: 22px; }
+  .hdr-btn { padding: 8px 14px; font-size: 12px; }
+  .notif-toast { font-size: 12px; padding: 9px 14px; white-space: normal; max-width: 90vw; text-align: center; }
+  .results-ticker p { font-size: 13px; }
+  .ss-num { font-size: 26px; }
+}
+@media(max-width: 400px) {
+  .price-now { font-size: 36px; }
+  .hero-h1 { font-size: 30px; }
+}
+
 /* ── NOTIFICATION TOAST ────────────────────────────────────────────── */
 .notif-toast {
   position:fixed; bottom:76px; left:50%;
@@ -894,12 +848,6 @@ footer {
   </div>
 </div>
 
-<!-- URGENCY BAR -->
-<div class="urgency">
-  <span>🔥 Aaj ke liye special price — Stock seedha khatam ho raha hai!</span>
-  <span class="urgency-timer" id="urgTimer">09:59</span>
-</div>
-
 <!-- HEADER -->
 <header>
   <div class="logo">Vaidya<em>kart</em></div>
@@ -912,6 +860,18 @@ footer {
 <!-- HERO -->
 <div class="hero">
   <div class="hero-inner">
+    <div class="gallery-col" style="order:-1">
+      <div class="gallery-frame">
+        <div class="gallery-track" id="galleryTrack"></div>
+        <div class="g-arrows">
+          <button class="g-arr hide" id="gPrev" onclick="gMove(-1)">&#8249;</button>
+          <button class="g-arr hide" id="gNext" onclick="gMove(1)">&#8250;</button>
+        </div>
+      </div>
+      <div class="g-dots" id="gDots"></div>
+      <div class="gallery-badge">🌿 12 Powerful Herbs</div>
+    </div>
+
     <div class="hero-content">
       <div class="hero-eyebrow">India's #1 Ayurvedic Blood Sugar Formula</div>
       <h1 class="hero-h1" id="heroTitle">Sugar Control<br><em>Powder</em></h1>
@@ -924,7 +884,7 @@ footer {
       </div>
 
       <div class="price-row">
-        <span class="price-now" id="heroPrice">₹599</span>
+        <span class="price-now" id="heroPrice">₹699</span>
         <span class="price-mrp" id="heroMrp">₹1,299</span>
         <span class="price-badge" id="heroDiscount">54% OFF</span>
       </div>
@@ -944,18 +904,6 @@ footer {
         <div class="chip"><span class="chip-icon">✅</span>Zero Side Effects</div>
         <div class="chip"><span class="chip-icon">🇮🇳</span>Made in India</div>
       </div>
-    </div>
-
-    <div class="gallery-col">
-      <div class="gallery-frame">
-        <div class="gallery-track" id="galleryTrack"></div>
-        <div class="g-arrows">
-          <button class="g-arr hide" id="gPrev" onclick="gMove(-1)">&#8249;</button>
-          <button class="g-arr hide" id="gNext" onclick="gMove(1)">&#8250;</button>
-        </div>
-      </div>
-      <div class="g-dots" id="gDots"></div>
-      <div class="gallery-badge">🌿 12 Powerful Herbs</div>
     </div>
   </div>
 </div>
@@ -1168,23 +1116,7 @@ footer {
 
 <!-- STICKY BUY -->
 <div class="sticky-buy" id="stickyBuy">
-  <button id="stickyBuyBtn" onclick="openModal()">🛒 Abhi Order Karo — ₹599 (COD)</button>
-</div>
-
-<!-- OFFER POPUP -->
-<div class="offer-overlay" id="offerOverlay">
-  <div class="offer-box">
-    <button class="offer-close" onclick="closeOffer()">×</button>
-    <div class="offer-eyebrow">⚡ Limited Time Offer</div>
-    <h2>Aaj <em>Extra 10% Off</em></h2>
-    <p>Sirf aaj ke liye special discount! Yeh offer band ho jaayegi — abhi order karo aur save karo.</p>
-    <div class="offer-timer-box">
-      <div class="offer-timer" id="offerTimer">10:00</div>
-      <div class="offer-timer-label">OFFER CLOSES IN</div>
-    </div>
-    <button class="offer-cta" onclick="closeOffer();openModal();">🛒 Haan! Discount ke saath Order Karo</button>
-    <span class="offer-skip" onclick="closeOffer()">Nahi chahiye — full price pay karoonga</span>
-  </div>
+  <button id="stickyBuyBtn" onclick="openModal()">🛒 Abhi Order Karo — ₹699 (COD)</button>
 </div>
 
 <!-- ORDER MODAL -->
@@ -1200,17 +1132,17 @@ footer {
     <div class="modal-body" id="modalBody">
       <div class="order-summary-box">
         <h4>Order Summary</h4>
-        <div class="sum-row"><span id="sumProduct">Sugar Control Powder</span><span id="sumUnitPrice">₹599</span></div>
+        <div class="sum-row"><span id="sumProduct">Sugar Control Powder</span><span id="sumUnitPrice">₹699</span></div>
         <div class="sum-row">
           Quantity:
           <select class="form-select" id="fqty" onchange="updateSummary()" style="width:auto;padding:4px 10px;font-size:13px">
-            <option value="1">1 Pack (1 Month)</option>
+            <option value="1">1 Pack (1 Month) — ₹699</option>
             <option value="2">2 Packs (2 Months)</option>
-            <option value="3">3 Packs (3 Months)</option>
+            <option value="3">3 Packs (3 Months) — ₹699 🔥 Best Value</option>
           </select>
         </div>
         <div class="sum-row"><span>Shipping</span><span style="color:#16a34a;font-weight:600">FREE</span></div>
-        <div class="sum-total"><span>Total</span><span id="sumTotal">₹599</span></div>
+        <div class="sum-total"><span>Total</span><span id="sumTotal">₹699</span></div>
       </div>
 
       <div class="form-group">
@@ -1265,45 +1197,10 @@ footer {
 const API_BASE = 'https://jughasd.onrender.com';
 
 let productData = {
-  name: 'Sugar Control Powder', price: 599, mrp: 1299,
+  name: 'Sugar Control Powder', price: 699, mrp: 1299,
   images: [], productId: 'vk-scp-001', product: 'sugar-control-powder',
   benefits: [], howToUse: ''
 };
-
-// ── URGENCY COUNTDOWN ─────────────────────────────────────────────────
-(function() {
-  let secs = 9 * 60 + 59;
-  function tick() {
-    const m = String(Math.floor(secs/60)).padStart(2,'0');
-    const s = String(secs%60).padStart(2,'0');
-    const el = document.getElementById('urgTimer');
-    if (el) el.textContent = m + ':' + s;
-    secs > 0 ? secs-- : (secs = 9*60+59);
-  }
-  tick(); setInterval(tick, 1000);
-})();
-
-// ── OFFER POPUP ───────────────────────────────────────────────────────
-let offerShown = false, offerSecs = 10*60, offerInterval = null;
-function showOffer() {
-  if (offerShown) return;
-  offerShown = true;
-  document.getElementById('offerOverlay').classList.add('show');
-  offerInterval = setInterval(() => {
-    offerSecs--;
-    const m = String(Math.floor(offerSecs/60)).padStart(2,'0');
-    const s = String(offerSecs%60).padStart(2,'0');
-    const el = document.getElementById('offerTimer');
-    if (el) el.textContent = m+':'+s;
-    if (offerSecs <= 0) { clearInterval(offerInterval); closeOffer(); }
-  }, 1000);
-}
-function closeOffer() {
-  document.getElementById('offerOverlay').classList.remove('show');
-  clearInterval(offerInterval);
-}
-setTimeout(showOffer, 9000);
-document.addEventListener('mouseleave', e => { if (e.clientY < 50 && !offerShown) showOffer(); });
 
 // ── SOCIAL PROOF TOASTS ───────────────────────────────────────────────
 const buyers = [
@@ -1463,7 +1360,13 @@ document.getElementById('modalOverlay').addEventListener('click', e => {
 // ── ORDER SUMMARY ─────────────────────────────────────────────────────
 function updateSummary() {
   const qty = parseInt(document.getElementById('fqty').value);
-  document.getElementById('sumTotal').textContent = '₹' + (qty * productData.price).toLocaleString('en-IN');
+  let total;
+  if (qty === 3) {
+    total = 699;
+  } else {
+    total = qty * productData.price;
+  }
+  document.getElementById('sumTotal').textContent = '₹' + total.toLocaleString('en-IN');
 }
 
 // ── PINCODE ───────────────────────────────────────────────────────────
@@ -1516,7 +1419,7 @@ async function submitOrder() {
   if (!address)                         return alert('Kripya apna poora address darj karein');
 
   const fullAddress = address + (landmark ? ', ' + landmark : '');
-  const total = qty * productData.price;
+  const total = qty === 1 ? 699 : qty * productData.price;
   const btn = document.getElementById('submitBtn');
   btn.disabled = true; btn.textContent = '⏳ Order ho raha hai...';
 
